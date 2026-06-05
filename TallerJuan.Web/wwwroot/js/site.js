@@ -1,4 +1,20 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+// ============================================================
+// SGTMJ - JavaScript del sitio
+// ============================================================
 
-// Write your JavaScript code.
+// Colapsar/expandir el menú lateral (sidebar).
+// En escritorio alterna el modo "solo iconos"; en móvil abre/cierra el panel deslizante.
+(function () {
+    var app = document.getElementById("sgtmjApp");
+    var boton = document.getElementById("sgtmjToggle");
+    if (!app || !boton) return;
+
+    boton.addEventListener("click", function () {
+        // En pantallas chicas se desliza el sidebar; en grandes se colapsa a solo iconos.
+        if (window.matchMedia("(max-width: 768px)").matches) {
+            app.classList.toggle("sgtmj-movil-abierto");
+        } else {
+            app.classList.toggle("sgtmj-colapsado");
+        }
+    });
+})();
