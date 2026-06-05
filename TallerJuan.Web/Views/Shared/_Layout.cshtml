@@ -1,9 +1,16 @@
 @{
-    // Datos del usuario en sesión, usados para armar el menú y la barra superior.
+    // Datos del usuario en sesión, usados para armar el sidebar y el pie.
     var sesion = Context.Session;
     bool haySesion = SesionWeb.HaySesion(sesion);
     string nombreUsuario = SesionWeb.Nombre(sesion);
     string rolUsuario = SesionWeb.RolNombre(sesion);
+
+    // Controlador actual: se usa para resaltar el ítem de menú activo.
+    string controladorActual = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+
+    // Función local que devuelve la clase "activo" si el ítem corresponde al controlador actual.
+    Func<string, string> activo = c =>
+        string.Equals(controladorActual, c, StringComparison.OrdinalIgnoreCase) ? "activo" : "";
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -12,113 +19,144 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - SGTMJ</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TallerJuan.Web.styles.css" asp-append-version="true" />
 </head>
-<body class="bg-light">
+<body>
     @if (haySesion)
     {
-        <header>
-            <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom box-shadow mb-4">
-                <div class="container-fluid">
-                    <a class="navbar-brand fw-semibold" asp-controller="Inicio" asp-action="Index">
-                        Taller Mecánico Automotriz JUAN
-                    </a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
-                            aria-controls="menuPrincipal" aria-expanded="false" aria-label="Mostrar menú">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="navbar-collapse collapse" id="menuPrincipal">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            @* Inicio siempre visible para usuarios autenticados. *@
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Inicio" asp-action="Index">Inicio</a>
-                            </li>
-                            @* Cada opción se muestra solo si el usuario posee la clave de permiso correspondiente. *@
-                            @if (SesionWeb.TienePermiso(sesion, "CLIENTES_VER"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Clientes" asp-action="Index">Clientes</a>
-                                </li>
-                            }
-                            @if (SesionWeb.TienePermiso(sesion, "VEHICULOS_VER"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
-                                </li>
-                            }
-                            @if (SesionWeb.TienePermiso(sesion, "ORDENES_VER"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Ordenes" asp-action="Index">Órdenes de Trabajo</a>
-                                </li>
-                            }
-                            @if (SesionWeb.TienePermiso(sesion, "INVENTARIO_VER"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Inventario" asp-action="Index">Inventario y Repuestos</a>
-                                </li>
-                            }
-                            @if (SesionWeb.TienePermiso(sesion, "EMPLEADOS_VER"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Empleados" asp-action="Index">Empleados</a>
-                                </li>
-                            }
-                            @if (SesionWeb.TienePermiso(sesion, "COTIZACIONES_VER"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Cotizaciones" asp-action="Index">Cotizaciones</a>
-                                </li>
-                            }
-                            @if (SesionWeb.TienePermiso(sesion, "FACTURAS_VER"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Facturacion" asp-action="Index">Facturación</a>
-                                </li>
-                            }
-                            @if (SesionWeb.TienePermiso(sesion, "REPORTES_VER"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Reportes" asp-action="Index">Reportes y Estadísticas</a>
-                                </li>
-                            }
-                            @if (SesionWeb.TienePermiso(sesion, "ROLES_GESTIONAR"))
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-controller="Seguridad" asp-action="Index">Seguridad</a>
-                                </li>
-                            }
-                        </ul>
-                        @* Identificación del usuario logueado y enlace para cerrar sesión. *@
-                        <div class="d-flex align-items-center text-light">
-                            <span class="me-3 small">
-                                <span class="fw-semibold">@nombreUsuario</span>
-                                <span class="text-secondary">(@rolUsuario)</span>
-                            </span>
-                            <a class="btn btn-outline-light btn-sm" asp-controller="Acceso" asp-action="CerrarSesion">
-                                Cerrar sesión
-                            </a>
-                        </div>
-                    </div>
+        <div class="sgtmj-app" id="sgtmjApp">
+            @* ----------------------- SIDEBAR ----------------------- *@
+            <aside class="sgtmj-sidebar">
+                <div class="sgtmj-sidebar-header">
+                    <img src="~/img/logo.png" alt="Logo Taller Mecánico JUAN" />
+                    <span class="sgtmj-marca">Taller Mecánico JUAN</span>
                 </div>
-            </nav>
-        </header>
-    }
 
-    <div class="container">
-        <main role="main" class="pb-3">
+                <ul class="sgtmj-nav">
+                    @* Inicio: siempre visible para usuarios autenticados. *@
+                    <li>
+                        <a class="sgtmj-nav-link @activo("Inicio")" asp-controller="Inicio" asp-action="Index">
+                            <i class="bi bi-speedometer2"></i><span>Inicio</span>
+                        </a>
+                    </li>
+                    @* Cada opción se muestra solo si el usuario posee su clave de permiso. *@
+                    @if (SesionWeb.TienePermiso(sesion, "CLIENTES_VER"))
+                    {
+                        <li>
+                            <a class="sgtmj-nav-link @activo("Clientes")" asp-controller="Clientes" asp-action="Index">
+                                <i class="bi bi-people"></i><span>Clientes</span>
+                            </a>
+                        </li>
+                    }
+                    @if (SesionWeb.TienePermiso(sesion, "VEHICULOS_VER"))
+                    {
+                        <li>
+                            <a class="sgtmj-nav-link @activo("Vehiculos")" asp-controller="Vehiculos" asp-action="Index">
+                                <i class="bi bi-car-front"></i><span>Vehículos</span>
+                            </a>
+                        </li>
+                    }
+                    @if (SesionWeb.TienePermiso(sesion, "ORDENES_VER"))
+                    {
+                        <li>
+                            <a class="sgtmj-nav-link @activo("Ordenes")" asp-controller="Ordenes" asp-action="Index">
+                                <i class="bi bi-wrench-adjustable"></i><span>Órdenes de Trabajo</span>
+                            </a>
+                        </li>
+                    }
+                    @if (SesionWeb.TienePermiso(sesion, "INVENTARIO_VER"))
+                    {
+                        <li>
+                            <a class="sgtmj-nav-link @activo("Inventario")" asp-controller="Inventario" asp-action="Index">
+                                <i class="bi bi-box-seam"></i><span>Inventario y Repuestos</span>
+                            </a>
+                        </li>
+                    }
+                    @if (SesionWeb.TienePermiso(sesion, "EMPLEADOS_VER"))
+                    {
+                        <li>
+                            <a class="sgtmj-nav-link @activo("Empleados")" asp-controller="Empleados" asp-action="Index">
+                                <i class="bi bi-person-badge"></i><span>Empleados</span>
+                            </a>
+                        </li>
+                    }
+                    @if (SesionWeb.TienePermiso(sesion, "COTIZACIONES_VER"))
+                    {
+                        <li>
+                            <a class="sgtmj-nav-link @activo("Cotizaciones")" asp-controller="Cotizaciones" asp-action="Index">
+                                <i class="bi bi-file-earmark-text"></i><span>Cotizaciones</span>
+                            </a>
+                        </li>
+                    }
+                    @if (SesionWeb.TienePermiso(sesion, "FACTURAS_VER"))
+                    {
+                        <li>
+                            <a class="sgtmj-nav-link @activo("Facturacion")" asp-controller="Facturacion" asp-action="Index">
+                                <i class="bi bi-receipt"></i><span>Facturación</span>
+                            </a>
+                        </li>
+                    }
+                    @if (SesionWeb.TienePermiso(sesion, "REPORTES_VER"))
+                    {
+                        <li>
+                            <a class="sgtmj-nav-link @activo("Reportes")" asp-controller="Reportes" asp-action="Index">
+                                <i class="bi bi-bar-chart"></i><span>Reportes y Estadísticas</span>
+                            </a>
+                        </li>
+                    }
+                    @if (SesionWeb.TienePermiso(sesion, "ROLES_GESTIONAR"))
+                    {
+                        <li>
+                            <a class="sgtmj-nav-link @activo("Seguridad")" asp-controller="Seguridad" asp-action="Index">
+                                <i class="bi bi-shield-lock"></i><span>Seguridad</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+                @* Pie del sidebar: usuario, rol y cerrar sesión. *@
+                <div class="sgtmj-sidebar-footer">
+                    <div class="sgtmj-usuario">
+                        <i class="bi bi-person-circle"></i>
+                        <span class="sgtmj-usuario-datos">
+                            <span class="d-block fw-semibold">@nombreUsuario</span>
+                            <small>@rolUsuario</small>
+                        </span>
+                    </div>
+                    <a class="btn btn-outline-light btn-sm w-100" asp-controller="Acceso" asp-action="CerrarSesion">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="sgtmj-cerrar-texto ms-1">Cerrar sesión</span>
+                    </a>
+                </div>
+            </aside>
+
+            @* ----------------------- CONTENIDO ----------------------- *@
+            <div class="sgtmj-contenido">
+                <div class="sgtmj-topbar">
+                    <button class="sgtmj-toggle" type="button" id="sgtmjToggle" aria-label="Colapsar o expandir menú">
+                        <i class="bi bi-list"></i>
+                    </button>
+                    <span class="fw-semibold">@ViewData["Title"]</span>
+                </div>
+
+                <main role="main" class="sgtmj-main">
+                    @RenderBody()
+                </main>
+
+                <footer class="sgtmj-footer">
+                    &copy; 2026 - SGTMJ - Sistema de Gestión Taller Mecánico Automotriz JUAN
+                </footer>
+            </div>
+        </div>
+    }
+    else
+    {
+        @* Sin sesión (ej.: Login): se muestra el contenido sin sidebar. *@
+        <main role="main">
             @RenderBody()
         </main>
-    </div>
-
-    @if (haySesion)
-    {
-        <footer class="border-top footer text-muted mt-4">
-            <div class="container py-3 small">
-                &copy; 2026 - SGTMJ - Sistema de Gestión Taller Mecánico Automotriz JUAN
-            </div>
-        </footer>
     }
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

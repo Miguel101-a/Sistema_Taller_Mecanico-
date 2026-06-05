@@ -1,0 +1,45 @@
+@model Rol
+@{
+    ViewData["Title"] = "Editar rol";
+    bool esAdmin = Model.IdRol == TallerJuan.Negocio.CN_Seguridad.IdRolAdministrador;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <h1 class="h3 mb-4"><i class="bi bi-pencil-square me-2"></i>Editar rol</h1>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i>@ViewBag.Error</div>
+        }
+        @if (esAdmin)
+        {
+            <div class="alert alert-info py-2 small">
+                <i class="bi bi-info-circle me-1"></i>El rol Administrador es del sistema: puede renombrarlo,
+                pero no desactivarlo ni dejarlo sin el permiso de gestión de roles.
+            </div>
+        }
+
+        <div class="card sgtmj-card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form asp-action="EditarRol" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="IdRol" />
+                    <input type="hidden" asp-for="Estado" />
+
+                    <div class="mb-4">
+                        <label asp-for="Nombre" class="form-label">Nombre del rol</label>
+                        <input asp-for="Nombre" class="form-control" maxlength="50" autofocus />
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-sgtmj-primario">
+                            <i class="bi bi-save me-1"></i>Guardar cambios
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
