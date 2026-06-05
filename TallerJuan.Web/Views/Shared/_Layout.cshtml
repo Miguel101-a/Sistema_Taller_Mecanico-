@@ -1,46 +1,126 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+@{
+    // Datos del usuario en sesión, usados para armar el menú y la barra superior.
+    var sesion = Context.Session;
+    bool haySesion = SesionWeb.HaySesion(sesion);
+    string nombreUsuario = SesionWeb.Nombre(sesion);
+    string rolUsuario = SesionWeb.RolNombre(sesion);
+}
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TallerJuan.Web</title>
+    <title>@ViewData["Title"] - SGTMJ</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TallerJuan.Web.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">TallerJuan.Web</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+<body class="bg-light">
+    @if (haySesion)
+    {
+        <header>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom box-shadow mb-4">
+                <div class="container-fluid">
+                    <a class="navbar-brand fw-semibold" asp-controller="Inicio" asp-action="Index">
+                        Taller Mecánico Automotriz JUAN
+                    </a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+                            aria-controls="menuPrincipal" aria-expanded="false" aria-label="Mostrar menú">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse" id="menuPrincipal">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            @* Inicio siempre visible para usuarios autenticados. *@
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Inicio" asp-action="Index">Inicio</a>
+                            </li>
+                            @* Cada opción se muestra solo si el usuario posee la clave de permiso correspondiente. *@
+                            @if (SesionWeb.TienePermiso(sesion, "CLIENTES_VER"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Clientes" asp-action="Index">Clientes</a>
+                                </li>
+                            }
+                            @if (SesionWeb.TienePermiso(sesion, "VEHICULOS_VER"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Vehiculos" asp-action="Index">Vehículos</a>
+                                </li>
+                            }
+                            @if (SesionWeb.TienePermiso(sesion, "ORDENES_VER"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Ordenes" asp-action="Index">Órdenes de Trabajo</a>
+                                </li>
+                            }
+                            @if (SesionWeb.TienePermiso(sesion, "INVENTARIO_VER"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Inventario" asp-action="Index">Inventario y Repuestos</a>
+                                </li>
+                            }
+                            @if (SesionWeb.TienePermiso(sesion, "EMPLEADOS_VER"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Empleados" asp-action="Index">Empleados</a>
+                                </li>
+                            }
+                            @if (SesionWeb.TienePermiso(sesion, "COTIZACIONES_VER"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Cotizaciones" asp-action="Index">Cotizaciones</a>
+                                </li>
+                            }
+                            @if (SesionWeb.TienePermiso(sesion, "FACTURAS_VER"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Facturacion" asp-action="Index">Facturación</a>
+                                </li>
+                            }
+                            @if (SesionWeb.TienePermiso(sesion, "REPORTES_VER"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Reportes" asp-action="Index">Reportes y Estadísticas</a>
+                                </li>
+                            }
+                            @if (SesionWeb.TienePermiso(sesion, "ROLES_GESTIONAR"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Seguridad" asp-action="Index">Seguridad</a>
+                                </li>
+                            }
+                        </ul>
+                        @* Identificación del usuario logueado y enlace para cerrar sesión. *@
+                        <div class="d-flex align-items-center text-light">
+                            <span class="me-3 small">
+                                <span class="fw-semibold">@nombreUsuario</span>
+                                <span class="text-secondary">(@rolUsuario)</span>
+                            </span>
+                            <a class="btn btn-outline-light btn-sm" asp-controller="Acceso" asp-action="CerrarSesion">
+                                Cerrar sesión
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
+            </nav>
+        </header>
+    }
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - TallerJuan.Web - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
+    @if (haySesion)
+    {
+        <footer class="border-top footer text-muted mt-4">
+            <div class="container py-3 small">
+                &copy; 2026 - SGTMJ - Sistema de Gestión Taller Mecánico Automotriz JUAN
+            </div>
+        </footer>
+    }
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

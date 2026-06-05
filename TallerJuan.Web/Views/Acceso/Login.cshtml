@@ -1,0 +1,53 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Iniciar sesión";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5 col-lg-4">
+        <div class="text-center mb-4">
+            <h1 class="h4 fw-semibold mb-1">SGTMJ</h1>
+            <p class="text-muted mb-0">Taller Mecánico Automotriz JUAN</p>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h2 class="h5 text-center mb-4">Iniciar sesión</h2>
+
+                @* Zona para el mensaje de error de credenciales. *@
+                @if (!string.IsNullOrEmpty(Model.MensajeError))
+                {
+                    <div class="alert alert-danger py-2" role="alert">
+                        @Model.MensajeError
+                    </div>
+                }
+
+                <form asp-controller="Acceso" asp-action="Login" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label asp-for="Usuario" class="form-label"></label>
+                        <input asp-for="Usuario" class="form-control" autocomplete="username" autofocus />
+                        <span asp-validation-for="Usuario" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Clave" class="form-label"></label>
+                        <input asp-for="Clave" class="form-control" autocomplete="current-password" />
+                        <span asp-validation-for="Clave" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-dark">Iniciar sesión</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <p class="text-center text-muted small mt-3 mb-0">Sistema de Gestión de Taller Mecánico</p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

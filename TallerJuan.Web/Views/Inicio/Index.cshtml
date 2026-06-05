@@ -1,0 +1,20 @@
+@{
+    ViewData["Title"] = "Inicio";
+    var nombre = SesionWeb.Nombre(Context.Session);
+    var rol = SesionWeb.RolNombre(Context.Session);
+}
+
+<div class="p-5 mb-4 bg-white rounded-3 shadow-sm border">
+    <div class="container-fluid py-3">
+        <h1 class="display-6 fw-semibold">Bienvenido al SGTMJ</h1>
+        <p class="fs-5 text-muted mb-1">Sistema de Gestión del Taller Mecánico Automotriz JUAN</p>
+        <hr class="my-4" />
+        <p class="mb-0">
+            Usuario: <span class="fw-semibold">@nombre</span>
+            <span class="text-muted">— Rol: @rol</span>
+        </p>
+        <p class="text-muted mt-3 mb-0">
+            Use el menú superior para acceder a los módulos del sistema según sus permisos.
+        </p>
+    </div>
+</div>
