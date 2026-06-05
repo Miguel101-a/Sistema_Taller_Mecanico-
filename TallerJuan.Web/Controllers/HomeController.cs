@@ -1,9 +1,13 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TallerJuan.Web.Models;
+using TallerJuan.Web.Seguridad;
 
 namespace TallerJuan.Web.Controllers;
 
+// Páginas de plantilla y manejador de errores: accesibles sin sesión para evitar
+// redirecciones en bucle cuando ocurre un error antes de autenticarse.
+[PermitirAnonimo]
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
