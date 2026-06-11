@@ -1,0 +1,259 @@
+@model Cotizacion
+@{
+    ViewData["Title"] = $"Cotización N° {Model.NumeroCotizacion}";
+    var sesion = Context.Session;
+    bool puedeEditar = SesionWeb.TienePermiso(sesion, "COTIZACIONES_EDITAR");
+
+    var detalles = ViewBag.Detalles as List<DetalleCotizacion> ?? new List<DetalleCotizacion>();
+    var productos = ViewBag.Productos as List<Producto> ?? new List<Producto>();
+    var cultura = new System.Globalization.CultureInfo("es-BO");
+
+    bool editable = Model.Estado.Trim().ToUpperInvariant() == "PENDIENTE";  // solo PENDIENTE admite cambios
+    bool puedeTrabajar = puedeEditar && editable;
+}
+
+<div class="sgtmj-encabezado">
+    <div>
+        <h1><i class="bi bi-file-earmark-text me-2"></i>Cotización N° @Model.NumeroCotizacion</h1>
+        <p class="text-muted mb-0">
+            Líneas de productos/servicios <span class="text-muted">(COTIZACION ↔ PRODUCTO)</span> y totales con IVA 13%.
+        </p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Volver
+    </a>
+</div>
+
+<div class="row g-4">
+    @* ---------------- Columna izquierda: cabecera + líneas ---------------- *@
+    <div class="col-lg-8">
+        <div class="card sgtmj-card shadow-sm border-0 mb-4">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <span class="fw-semibold"><i class="bi bi-info-circle me-1 text-muted"></i>Datos de la cotización</span>
+                <partial name="_BadgeEstadoCotizacion" model="@Model.Estado" />
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-4 col-md-3 text-muted">Cliente</dt>
+                    <dd class="col-8 col-md-9">@Model.ClienteNombre <span class="text-muted">(@Model.ClienteCedula)</span></dd>
+
+                    <dt class="col-4 col-md-3 text-muted">Vehículo</dt>
+                    <dd class="col-8 col-md-9">@Model.VehiculoPlaca — @Model.VehiculoDescripcion</dd>
+
+                    <dt class="col-4 col-md-3 text-muted">Fecha emisión</dt>
+                    <dd class="col-8 col-md-9">@Model.FechaEmision.ToString("dd/MM/yyyy")</dd>
+
+                    <dt class="col-4 col-md-3 text-muted">Validez</dt>
+                    <dd class="col-8 col-md-9">@(Model.ValidezDias?.ToString() ?? "—") días</dd>
+                </dl>
+            </div>
+        </div>
+
+        @* ---------------- Tabla de líneas (detalle N:M) ---------------- *@
+        <div class="card sgtmj-card shadow-sm border-0">
+            <div class="card-header bg-transparent fw-semibold">
+                <i class="bi bi-list-ul me-1 text-muted"></i>Líneas (@detalles.Count)
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Producto</th>
+                            <th>Descripción</th>
+                            <th>Tipo</th>
+                            <th class="text-end">Cant.</th>
+                            <th class="text-end">P. unitario</th>
+                            <th class="text-end">Subtotal</th>
+                            @if (puedeTrabajar)
+                            {
+                                <th class="text-end">Acciones</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (detalles.Count == 0)
+                        {
+                            <tr>
+                                <td colspan="@(puedeTrabajar ? 7 : 6)" class="text-center text-muted py-4">
+                                    Aún no se han agregado líneas a esta cotización.
+                                </td>
+                            </tr>
+                        }
+                        @foreach (var d in detalles)
+                        {
+                            bool esServicio = d.Tipo.Trim().ToUpperInvariant() == "SERVICIO";
+                            <tr>
+                                <td>
+                                    <span class="fw-semibold">@d.ProductoNombre</span>
+                                    <span class="text-muted small d-block">@d.ProductoCodigo</span>
+                                </td>
+                                <td>@(string.IsNullOrWhiteSpace(d.Descripcion) ? "—" : d.Descripcion)</td>
+                                <td>
+                                    <span class="sgtmj-badge @(esServicio ? "sgtmj-linea-servicio" : "sgtmj-linea-repuesto")">@d.Tipo</span>
+                                </td>
+                                <td class="text-end">@d.Cantidad</td>
+                                <td class="text-end">Bs @d.PrecioUnitario.ToString("N2", cultura)</td>
+                                <td class="text-end fw-semibold">Bs @d.Subtotal.ToString("N2", cultura)</td>
+                                @if (puedeTrabajar)
+                                {
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger js-confirmar"
+                                                data-accion="@Url.Action("QuitarLinea", new { numeroCotizacion = Model.NumeroCotizacion })"
+                                                data-campo="productoCodigo" data-valor="@d.ProductoCodigo"
+                                                data-mensaje="¿Quitar la línea @d.ProductoNombre de la cotización?">
+                                            <i class="bi bi-trash me-1"></i>Quitar
+                                        </button>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @* ---------------- Formulario "Agregar línea" (solo si PENDIENTE) ---------------- *@
+        @if (puedeTrabajar)
+        {
+            <div class="card sgtmj-card shadow-sm border-0 mt-4">
+                <div class="card-header bg-transparent fw-semibold">
+                    <i class="bi bi-plus-circle me-1 text-muted"></i>Agregar línea
+                </div>
+                <div class="card-body">
+                    <form asp-action="AgregarLinea" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="CotizacionNumeroCotizacion" value="@Model.NumeroCotizacion" />
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Producto <span class="text-danger">*</span></label>
+                                <select name="ProductoCodigo" class="form-select" id="selProducto" required>
+                                    <option value="">— Seleccione un producto —</option>
+                                    @foreach (var p in productos)
+                                    {
+                                        <option value="@p.Codigo" data-nombre="@p.Nombre"
+                                                data-precio="@p.PrecioVenta.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+                                            @p.Nombre (@p.Codigo)
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Descripción</label>
+                                <input name="Descripcion" id="txtDescripcion" class="form-control" maxlength="200" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label d-block">Tipo <span class="text-danger">*</span></label>
+                                <div class="btn-group" role="group">
+                                    <input type="radio" class="btn-check" name="Tipo" id="tipoRepuesto" value="REPUESTO" autocomplete="off" checked />
+                                    <label class="btn btn-outline-primary" for="tipoRepuesto">REPUESTO</label>
+
+                                    <input type="radio" class="btn-check" name="Tipo" id="tipoServicio" value="SERVICIO" autocomplete="off" />
+                                    <label class="btn btn-outline-primary" for="tipoServicio">SERVICIO</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Cantidad <span class="text-danger">*</span></label>
+                                <input name="Cantidad" type="number" min="1" value="1" class="form-control" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Precio unitario (Bs) <span class="text-danger">*</span></label>
+                                <input name="PrecioUnitario" id="txtPrecio" type="number" step="0.01" min="0" value="0" class="form-control" required />
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-sgtmj-primario mt-3">
+                            <i class="bi bi-plus-lg me-1"></i>Agregar línea
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+        else if (!editable)
+        {
+            <div class="alert sgtmj-stock-bajo border-0 mt-4 mb-0 d-flex align-items-center">
+                <i class="bi bi-lock me-2"></i>La cotización ya fue @Model.Estado.ToLowerInvariant(); no se pueden modificar sus líneas.
+            </div>
+        }
+    </div>
+
+    @* ---------------- Columna derecha: totales + estado ---------------- *@
+    <div class="col-lg-4">
+        <div class="card sgtmj-card shadow-sm border-0 mb-4">
+            <div class="card-header bg-transparent fw-semibold">
+                <i class="bi bi-calculator me-1 text-muted"></i>Totales
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal servicios</span>
+                    <span>Bs @Model.SubtotalServicios.ToString("N2", cultura)</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">Subtotal repuestos</span>
+                    <span>Bs @Model.SubtotalRepuestos.ToString("N2", cultura)</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted">IVA (13%)</span>
+                    <span>Bs @Model.Impuestos.ToString("N2", cultura)</span>
+                </div>
+                <hr />
+                <div class="sgtmj-cotiz-total">
+                    <span>TOTAL</span>
+                    <span>Bs @Model.Total.ToString("N2", cultura)</span>
+                </div>
+            </div>
+        </div>
+
+        @* ---------------- Aprobar / Rechazar (solo si PENDIENTE) ---------------- *@
+        <div class="card sgtmj-card shadow-sm border-0">
+            <div class="card-header bg-transparent fw-semibold">
+                <i class="bi bi-check2-square me-1 text-muted"></i>Estado
+            </div>
+            <div class="card-body">
+                @if (!editable)
+                {
+                    <p class="text-muted mb-0"><i class="bi bi-lock me-1"></i>La cotización fue @Model.Estado.ToLowerInvariant(); no admite más cambios.</p>
+                }
+                else if (puedeEditar)
+                {
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-success js-confirmar"
+                                data-accion="@Url.Action("CambiarEstado", new { numeroCotizacion = Model.NumeroCotizacion })"
+                                data-campo="estado" data-valor="APROBADA"
+                                data-mensaje="¿Aprobar la cotización N° @Model.NumeroCotizacion? Ya no podrá modificarse.">
+                            <i class="bi bi-check-lg me-1"></i>Aprobar
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary js-confirmar"
+                                data-accion="@Url.Action("CambiarEstado", new { numeroCotizacion = Model.NumeroCotizacion })"
+                                data-campo="estado" data-valor="RECHAZADA"
+                                data-mensaje="¿Rechazar la cotización N° @Model.NumeroCotizacion? Ya no podrá modificarse.">
+                            <i class="bi bi-x-lg me-1"></i>Rechazar
+                        </button>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No tiene permisos para cambiar el estado.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Al elegir un producto, autocompleta la descripción (nombre) y el precio unitario
+        // (PRECIO_VENTA) desde los atributos data-*; ambos quedan editables.
+        (function () {
+            var selProducto = document.getElementById("selProducto");
+            if (!selProducto) return;
+            var txtDescripcion = document.getElementById("txtDescripcion");
+            var txtPrecio = document.getElementById("txtPrecio");
+
+            selProducto.addEventListener("change", function () {
+                var opcion = selProducto.options[selProducto.selectedIndex];
+                if (!opcion || !opcion.value) return;
+                txtDescripcion.value = opcion.getAttribute("data-nombre") || "";
+                txtPrecio.value = opcion.getAttribute("data-precio") || "0";
+            });
+        })();
+    </script>
+}

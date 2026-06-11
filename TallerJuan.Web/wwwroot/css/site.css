@@ -394,3 +394,54 @@ body {
 tr.sgtmj-oculto {
   display: none;
 }
+
+/* ============================================================
+   FASE 5 - Movimientos de Inventario y Cotizaciones
+   ============================================================ */
+
+/* ---------------------- Badges de tipo de movimiento ---------------------- */
+.sgtmj-mov-salida {
+  background-color: #FEF3C7;
+  color: #92400E;          /* ámbar industrial (--sgtmj-acento): salida de stock */
+}
+.sgtmj-mov-ingreso {
+  background-color: #DCFCE7;
+  color: #166534;          /* verde (--sgtmj-exito): ingreso de stock */
+}
+
+/* ---------------------- Badges de estado de cotización ---------------------- */
+.sgtmj-cotiz-pendiente {
+  background-color: #FEF3C7;
+  color: #92400E;          /* ámbar: en edición */
+}
+.sgtmj-cotiz-aprobada {
+  background-color: #DCFCE7;
+  color: #166534;          /* verde: aprobada */
+}
+.sgtmj-cotiz-rechazada {
+  background-color: #FEE2E2;
+  color: #991B1B;          /* rojo suave: rechazada */
+}
+
+/* ---------------------- Badges de tipo de línea de cotización ---------------------- */
+.sgtmj-linea-servicio {
+  background-color: #DBEAFE;
+  color: #1D4ED8;          /* azul (--sgtmj-primario) */
+}
+.sgtmj-linea-repuesto {
+  background-color: #E2E8F0;
+  color: #334155;          /* gris azulado */
+}
+
+/* ---------------------- Tarjeta de totales de cotización ---------------------- */
+.sgtmj-cotiz-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-weight: 700;
+  color: var(--sgtmj-primario);
+}
+.sgtmj-cotiz-total span:last-child {
+  font-size: 1.6rem;
+  line-height: 1.1;
+}
