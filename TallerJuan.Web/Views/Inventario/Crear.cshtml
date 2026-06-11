@@ -1,0 +1,68 @@
+@model Producto
+@{
+    ViewData["Title"] = "Nuevo producto";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+        <h1 class="h3 mb-4"><i class="bi bi-box-seam me-2"></i>Nuevo producto</h1>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i>@ViewBag.Error</div>
+        }
+
+        <div class="card sgtmj-card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form asp-action="Crear" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label asp-for="Codigo" class="form-label">Código <span class="text-danger">*</span></label>
+                            <input asp-for="Codigo" class="form-control" maxlength="20" required autofocus />
+                        </div>
+                        <div class="col-md-8">
+                            <label asp-for="Nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input asp-for="Nombre" class="form-control" maxlength="100" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Categoria" class="form-label">Categoría</label>
+                            <input asp-for="Categoria" class="form-control" maxlength="50" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Marca" class="form-label">Marca</label>
+                            <input asp-for="Marca" class="form-control" maxlength="50" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Descripcion" class="form-label">Descripción</label>
+                            <textarea asp-for="Descripcion" class="form-control" maxlength="500" rows="2"></textarea>
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="StockActual" class="form-label">Stock actual</label>
+                            <input asp-for="StockActual" type="number" min="0" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="StockMinimo" class="form-label">Stock mínimo</label>
+                            <input asp-for="StockMinimo" type="number" min="0" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="PrecioCompra" class="form-label">Precio compra (Bs)</label>
+                            <input asp-for="PrecioCompra" type="number" step="0.01" min="0" class="form-control" />
+                        </div>
+                        <div class="col-md-3">
+                            <label asp-for="PrecioVenta" class="form-label">Precio venta (Bs)</label>
+                            <input asp-for="PrecioVenta" type="number" step="0.01" min="0" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-sgtmj-primario">
+                            <i class="bi bi-save me-1"></i>Guardar
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

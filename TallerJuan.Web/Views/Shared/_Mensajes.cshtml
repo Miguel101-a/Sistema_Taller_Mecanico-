@@ -1,0 +1,16 @@
+@* ----------------------------------------------------------------------------
+   Banner reutilizable de mensajes TempData (éxito / error), consistente en todos
+   los módulos. Se incluye una sola vez desde _Layout, sobre el contenido.
+   ---------------------------------------------------------------------------- *@
+@if (TempData["Exito"] != null)
+{
+    <div class="alert alert-success py-2 d-flex align-items-center" role="alert">
+        <i class="bi bi-check-circle me-2"></i>@TempData["Exito"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger py-2 d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+    </div>
+}

@@ -142,12 +142,38 @@
                 </div>
 
                 <main role="main" class="sgtmj-main">
+                    @* Banner de mensajes (éxito/error) reutilizable en todos los módulos. *@
+                    <partial name="_Mensajes" />
                     @RenderBody()
                 </main>
 
                 <footer class="sgtmj-footer">
                     &copy; 2026 - SGTMJ - Sistema de Gestión Taller Mecánico Automotriz JUAN
                 </footer>
+            </div>
+        </div>
+
+        @* ---------- Modal de confirmación genérico (desactivar/eliminar) ---------- *@
+        <div class="modal fade" id="sgtmjModalConfirmar" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <form method="post" id="sgtmjFormConfirmar">
+                        @Html.AntiForgeryToken()
+                        @* El nombre y el valor de este campo se fijan por JS según el botón disparador. *@
+                        <input type="hidden" id="sgtmjCampoConfirmar" name="id" value="" />
+                        <div class="modal-header">
+                            <h5 class="modal-title"><i class="bi bi-exclamation-triangle text-warning me-2"></i>Confirmar acción</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="mb-0" id="sgtmjMensajeConfirmar">¿Está seguro de realizar esta acción?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-danger"><i class="bi bi-check-lg me-1"></i>Confirmar</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     }
@@ -162,6 +188,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/tabla-buscador.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

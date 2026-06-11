@@ -1,0 +1,206 @@
+-- ============================================================
+-- FASE 4 - SPs para Ordenes de Trabajo, Diagnostico y Obtener
+-- Motor: SQL Server 2012+
+-- Ejecutar UNA sola vez sobre TallerJuanDB
+-- ============================================================
+USE TallerJuanDB;
+GO
+
+-- ============ OBTENER POR ID (para formularios de edicion) ============
+IF OBJECT_ID('sp_Cliente_Obtener','P') IS NOT NULL DROP PROCEDURE sp_Cliente_Obtener;
+GO
+CREATE PROCEDURE sp_Cliente_Obtener
+    @Cedula VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT CEDULA, NOMBRE, TELEFONO, DIRECCION, CORREO, TIPO, FECHA_REGISTRO, ESTADO
+    FROM CLIENTE WHERE CEDULA = @Cedula;
+END
+GO
+
+IF OBJECT_ID('sp_Vehiculo_Obtener','P') IS NOT NULL DROP PROCEDURE sp_Vehiculo_Obtener;
+GO
+CREATE PROCEDURE sp_Vehiculo_Obtener
+    @Placa VARCHAR(10)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT V.PLACA, V.MARCA, V.MODELO, V.ANIO, V.COLOR, V.NUMERO_CHASIS, V.NUMERO_MOTOR,
+           V.TIPO_COMBUSTIBLE, V.KILOMETRAJE, V.CLIENTE_CEDULA, C.NOMBRE AS CLIENTE_NOMBRE, V.ESTADO
+    FROM VEHICULO V INNER JOIN CLIENTE C ON V.CLIENTE_CEDULA = C.CEDULA
+    WHERE V.PLACA = @Placa;
+END
+GO
+
+IF OBJECT_ID('sp_Empleado_Obtener','P') IS NOT NULL DROP PROCEDURE sp_Empleado_Obtener;
+GO
+CREATE PROCEDURE sp_Empleado_Obtener
+    @Cedula VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT E.CEDULA, E.NOMBRE, E.TELEFONO, E.DIRECCION, E.CARGO, E.FECHA_INGRESO,
+           E.SALARIO, E.ESPECIALIDAD, E.USUARIO, E.ID_ROL, R.NOMBRE AS ROL_NOMBRE, E.ESTADO
+    FROM EMPLEADO E INNER JOIN ROL R ON E.ID_ROL = R.ID_ROL
+    WHERE E.CEDULA = @Cedula;
+END
+GO
+
+IF OBJECT_ID('sp_Producto_Obtener','P') IS NOT NULL DROP PROCEDURE sp_Producto_Obtener;
+GO
+CREATE PROCEDURE sp_Producto_Obtener
+    @Codigo VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT CODIGO, NOMBRE, CATEGORIA, MARCA, DESCRIPCION, STOCK_ACTUAL, STOCK_MINIMO,
+           PRECIO_COMPRA, PRECIO_VENTA, ESTADO
+    FROM PRODUCTO WHERE CODIGO = @Codigo;
+END
+GO
+
+-- ============ VEHICULOS DE UN CLIENTE (para crear orden de trabajo) ============
+IF OBJECT_ID('sp_Vehiculo_PorCliente','P') IS NOT NULL DROP PROCEDURE sp_Vehiculo_PorCliente;
+GO
+CREATE PROCEDURE sp_Vehiculo_PorCliente
+    @ClienteCedula VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT PLACA, MARCA, MODELO, ANIO, COLOR, KILOMETRAJE
+    FROM VEHICULO
+    WHERE CLIENTE_CEDULA = @ClienteCedula AND ESTADO = 'ACTIVO'
+    ORDER BY PLACA;
+END
+GO
+
+-- ============ ORDENES DE TRABAJO ============
+IF OBJECT_ID('sp_OrdenTrabajo_Listar','P') IS NOT NULL DROP PROCEDURE sp_OrdenTrabajo_Listar;
+GO
+CREATE PROCEDURE sp_OrdenTrabajo_Listar
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT O.NUMERO_ORDEN, O.FECHA_INGRESO, O.KILOMETRAJE_INGRESO, O.MOTIVO_VISITA,
+           O.DESCRIPCION_PROBLEMA, O.ESTADO, O.FECHA_ENTREGA,
+           O.VEHICULO_PLACA, V.MARCA + ' ' + V.MODELO AS VEHICULO_DESCRIPCION,
+           C.CEDULA AS CLIENTE_CEDULA, C.NOMBRE AS CLIENTE_NOMBRE,
+           O.EMPLEADO_CEDULA, E.NOMBRE AS EMPLEADO_NOMBRE
+    FROM ORDEN_TRABAJO O
+    INNER JOIN VEHICULO V ON O.VEHICULO_PLACA = V.PLACA
+    INNER JOIN CLIENTE  C ON V.CLIENTE_CEDULA = C.CEDULA
+    INNER JOIN EMPLEADO E ON O.EMPLEADO_CEDULA = E.CEDULA
+    ORDER BY O.NUMERO_ORDEN DESC;
+END
+GO
+
+IF OBJECT_ID('sp_OrdenTrabajo_Obtener','P') IS NOT NULL DROP PROCEDURE sp_OrdenTrabajo_Obtener;
+GO
+CREATE PROCEDURE sp_OrdenTrabajo_Obtener
+    @NumeroOrden INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT O.NUMERO_ORDEN, O.FECHA_INGRESO, O.KILOMETRAJE_INGRESO, O.MOTIVO_VISITA,
+           O.DESCRIPCION_PROBLEMA, O.ESTADO, O.FECHA_ENTREGA,
+           O.VEHICULO_PLACA, V.MARCA + ' ' + V.MODELO AS VEHICULO_DESCRIPCION,
+           C.CEDULA AS CLIENTE_CEDULA, C.NOMBRE AS CLIENTE_NOMBRE,
+           O.EMPLEADO_CEDULA, E.NOMBRE AS EMPLEADO_NOMBRE
+    FROM ORDEN_TRABAJO O
+    INNER JOIN VEHICULO V ON O.VEHICULO_PLACA = V.PLACA
+    INNER JOIN CLIENTE  C ON V.CLIENTE_CEDULA = C.CEDULA
+    INNER JOIN EMPLEADO E ON O.EMPLEADO_CEDULA = E.CEDULA
+    WHERE O.NUMERO_ORDEN = @NumeroOrden;
+END
+GO
+
+IF OBJECT_ID('sp_OrdenTrabajo_Insertar','P') IS NOT NULL DROP PROCEDURE sp_OrdenTrabajo_Insertar;
+GO
+CREATE PROCEDURE sp_OrdenTrabajo_Insertar
+    @KilometrajeIngreso  INT,
+    @MotivoVisita        VARCHAR(200),
+    @DescripcionProblema VARCHAR(500),
+    @VehiculoPlaca       VARCHAR(10),
+    @EmpleadoCedula      VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO ORDEN_TRABAJO (KILOMETRAJE_INGRESO, MOTIVO_VISITA, DESCRIPCION_PROBLEMA,
+        VEHICULO_PLACA, EMPLEADO_CEDULA)
+    VALUES (@KilometrajeIngreso, @MotivoVisita, @DescripcionProblema,
+        @VehiculoPlaca, @EmpleadoCedula);
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS NUMERO_ORDEN;
+END
+GO
+
+IF OBJECT_ID('sp_OrdenTrabajo_Actualizar','P') IS NOT NULL DROP PROCEDURE sp_OrdenTrabajo_Actualizar;
+GO
+CREATE PROCEDURE sp_OrdenTrabajo_Actualizar
+    @NumeroOrden         INT,
+    @KilometrajeIngreso  INT,
+    @MotivoVisita        VARCHAR(200),
+    @DescripcionProblema VARCHAR(500),
+    @EmpleadoCedula      VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE ORDEN_TRABAJO
+    SET KILOMETRAJE_INGRESO = @KilometrajeIngreso,
+        MOTIVO_VISITA = @MotivoVisita,
+        DESCRIPCION_PROBLEMA = @DescripcionProblema,
+        EMPLEADO_CEDULA = @EmpleadoCedula
+    WHERE NUMERO_ORDEN = @NumeroOrden;
+END
+GO
+
+-- Cambia el estado; si pasa a ENTREGADO registra la fecha de entrega.
+IF OBJECT_ID('sp_OrdenTrabajo_CambiarEstado','P') IS NOT NULL DROP PROCEDURE sp_OrdenTrabajo_CambiarEstado;
+GO
+CREATE PROCEDURE sp_OrdenTrabajo_CambiarEstado
+    @NumeroOrden INT,
+    @Estado      VARCHAR(30)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE ORDEN_TRABAJO
+    SET ESTADO = @Estado,
+        FECHA_ENTREGA = CASE WHEN @Estado = 'ENTREGADO' THEN GETDATE() ELSE FECHA_ENTREGA END
+    WHERE NUMERO_ORDEN = @NumeroOrden;
+END
+GO
+
+-- ============ DIAGNOSTICOS ============
+IF OBJECT_ID('sp_Diagnostico_PorOrden','P') IS NOT NULL DROP PROCEDURE sp_Diagnostico_PorOrden;
+GO
+CREATE PROCEDURE sp_Diagnostico_PorOrden
+    @NumeroOrden INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT ID_DIAGNOSTICO, DESCRIPCION, TIEMPO_ESTIMADO, COSTO_ESTIMADO, FECHA,
+           ORDEN_TRABAJO_NUMERO_ORDEN
+    FROM DIAGNOSTICO
+    WHERE ORDEN_TRABAJO_NUMERO_ORDEN = @NumeroOrden
+    ORDER BY FECHA DESC;
+END
+GO
+
+IF OBJECT_ID('sp_Diagnostico_Insertar','P') IS NOT NULL DROP PROCEDURE sp_Diagnostico_Insertar;
+GO
+CREATE PROCEDURE sp_Diagnostico_Insertar
+    @Descripcion    VARCHAR(1000),
+    @TiempoEstimado DECIMAL(5,2),
+    @CostoEstimado  DECIMAL(10,2),
+    @NumeroOrden    INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO DIAGNOSTICO (DESCRIPCION, TIEMPO_ESTIMADO, COSTO_ESTIMADO, ORDEN_TRABAJO_NUMERO_ORDEN)
+    VALUES (@Descripcion, @TiempoEstimado, @CostoEstimado, @NumeroOrden);
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS ID_DIAGNOSTICO;
+END
+GO
+
+PRINT 'Fase 4: SPs de Ordenes de Trabajo y Diagnostico creados correctamente.';
+GO

@@ -1,0 +1,89 @@
+@model List<Cliente>
+@{
+    ViewData["Title"] = "Clientes";
+    var sesion = Context.Session;
+    bool puedeEditar = SesionWeb.TienePermiso(sesion, "CLIENTES_EDITAR");
+    bool puedeEliminar = SesionWeb.TienePermiso(sesion, "CLIENTES_ELIMINAR");
+}
+
+<div class="sgtmj-encabezado">
+    <div>
+        <h1><i class="bi bi-people me-2"></i>Clientes</h1>
+        <p class="text-muted mb-0">Gestione los clientes del taller y sus datos de contacto.</p>
+    </div>
+    @if (puedeEditar)
+    {
+        <a asp-action="Crear" class="btn btn-sgtmj-primario">
+            <i class="bi bi-plus-lg me-1"></i>Nuevo cliente
+        </a>
+    }
+</div>
+
+<div class="card sgtmj-card shadow-sm border-0">
+    <div class="sgtmj-tabla-herramientas">
+        <input type="search" class="form-control sgtmj-buscador" placeholder="Buscar cliente…"
+               data-tabla="tablaClientes" data-contador="contadorClientes" autocomplete="off" />
+        <span class="sgtmj-contador" id="contadorClientes"></span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tablaClientes">
+            <thead class="table-light">
+                <tr>
+                    <th>Cédula</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    @if (puedeEditar || puedeEliminar)
+                    {
+                        <th class="text-end">Acciones</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr data-sin-filtro>
+                        <td colspan="7" class="text-center text-muted py-4">No hay clientes registrados.</td>
+                    </tr>
+                }
+                @foreach (var cliente in Model)
+                {
+                    bool activo = cliente.Estado.Trim().ToUpperInvariant() == "ACTIVO";
+                    <tr class="@(activo ? "" : "text-muted opacity-75")">
+                        <td class="fw-semibold">@cliente.Cedula</td>
+                        <td>@cliente.Nombre</td>
+                        <td>@(string.IsNullOrWhiteSpace(cliente.Telefono) ? "—" : cliente.Telefono)</td>
+                        <td>@(string.IsNullOrWhiteSpace(cliente.Correo) ? "—" : cliente.Correo)</td>
+                        <td>@(string.IsNullOrWhiteSpace(cliente.Tipo) ? "—" : cliente.Tipo)</td>
+                        <td>
+                            <span class="sgtmj-badge @(activo ? "sgtmj-estado-activo" : "sgtmj-estado-inactivo")">
+                                @(activo ? "ACTIVO" : "INACTIVO")
+                            </span>
+                        </td>
+                        @if (puedeEditar || puedeEliminar)
+                        {
+                            <td class="text-end">
+                                @if (puedeEditar)
+                                {
+                                    <a asp-action="Editar" asp-route-id="@cliente.Cedula" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil me-1"></i>Editar
+                                    </a>
+                                }
+                                @if (puedeEliminar && activo)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-warning js-confirmar"
+                                            data-accion="@Url.Action("Eliminar")" data-campo="id" data-valor="@cliente.Cedula"
+                                            data-mensaje="¿Está seguro de desactivar al cliente @cliente.Nombre?">
+                                        <i class="bi bi-toggle-off me-1"></i>Desactivar
+                                    </button>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

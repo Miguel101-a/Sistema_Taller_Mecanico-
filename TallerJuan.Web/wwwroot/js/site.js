@@ -18,3 +18,34 @@
         }
     });
 })();
+
+// ============================================================
+// Modal de confirmación genérico (desactivar/eliminar).
+// Un único modal en _Layout, reutilizado por todos los módulos.
+// Los botones disparadores llevan:
+//   class="js-confirmar"
+//   data-accion="/Controlador/Eliminar"  (URL del POST)
+//   data-campo="id"                       (nombre del parámetro de la PK)
+//   data-valor="ABC123"                   (valor de la PK)
+//   data-mensaje="¿Está seguro de desactivar al cliente Juan?"
+// ============================================================
+(function () {
+    var modalEl = document.getElementById("sgtmjModalConfirmar");
+    if (!modalEl) return;
+
+    var form = document.getElementById("sgtmjFormConfirmar");
+    var campo = document.getElementById("sgtmjCampoConfirmar");
+    var mensaje = document.getElementById("sgtmjMensajeConfirmar");
+    var modal = new bootstrap.Modal(modalEl);
+
+    document.addEventListener("click", function (e) {
+        var boton = e.target.closest(".js-confirmar");
+        if (!boton) return;
+
+        form.action = boton.getAttribute("data-accion") || "";
+        campo.name = boton.getAttribute("data-campo") || "id";
+        campo.value = boton.getAttribute("data-valor") || "";
+        mensaje.textContent = boton.getAttribute("data-mensaje") || "¿Está seguro de realizar esta acción?";
+        modal.show();
+    });
+})();
