@@ -1,0 +1,101 @@
+@model MovimientoCrearViewModel
+@{
+    ViewData["Title"] = "Registrar movimiento";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+        <h1 class="h3 mb-4"><i class="bi bi-arrow-left-right me-2"></i>Registrar movimiento de inventario</h1>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i>@ViewBag.Error</div>
+        }
+
+        <div class="card sgtmj-card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form asp-action="RegistrarMovimiento" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label asp-for="Movimiento.ProductoCodigo" class="form-label">Producto <span class="text-danger">*</span></label>
+                            <select asp-for="Movimiento.ProductoCodigo" class="form-select" id="selProducto" required>
+                                <option value="">— Seleccione un producto —</option>
+                                @foreach (var p in Model.Productos)
+                                {
+                                    <option value="@p.Codigo" data-stock="@p.StockActual">@p.Nombre (@p.Codigo)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Stock actual</label>
+                            <div class="form-control bg-light fw-semibold" id="lblStock">—</div>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Movimiento.OrdenTrabajoNumeroOrden" class="form-label">Orden de trabajo <span class="text-danger">*</span></label>
+                            <select asp-for="Movimiento.OrdenTrabajoNumeroOrden" class="form-select" required>
+                                <option value="">— Seleccione una orden —</option>
+                                @foreach (var o in Model.Ordenes)
+                                {
+                                    <option value="@o.NumeroOrden">N° @o.NumeroOrden — @o.VehiculoDescripcion — @o.ClienteNombre</option>
+                                }
+                            </select>
+                            @if (Model.Ordenes.Count == 0)
+                            {
+                                <div class="form-text text-warning">No hay órdenes de trabajo abiertas. Las órdenes ENTREGADAS no admiten movimientos.</div>
+                            }
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label d-block">Tipo de movimiento <span class="text-danger">*</span></label>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="Movimiento.Tipo" id="tipoSalida" value="SALIDA" autocomplete="off" checked />
+                                <label class="btn btn-outline-warning" for="tipoSalida"><i class="bi bi-box-arrow-up me-1"></i>SALIDA</label>
+
+                                <input type="radio" class="btn-check" name="Movimiento.Tipo" id="tipoIngreso" value="INGRESO" autocomplete="off" />
+                                <label class="btn btn-outline-success" for="tipoIngreso"><i class="bi bi-box-arrow-in-down me-1"></i>INGRESO</label>
+                            </div>
+                            <div class="form-text">SALIDA descuenta stock (repuesto usado); INGRESO lo aumenta (devolución).</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Movimiento.Cantidad" class="form-label">Cantidad <span class="text-danger">*</span></label>
+                            <input asp-for="Movimiento.Cantidad" type="number" min="1" value="1" class="form-control" required />
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Movimiento.Motivo" class="form-label">Motivo</label>
+                            <input asp-for="Movimiento.Motivo" class="form-control" maxlength="200" placeholder="Ej.: Repuesto usado en la reparación" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-sgtmj-primario">
+                            <i class="bi bi-save me-1"></i>Registrar movimiento
+                        </button>
+                        <a asp-action="Movimientos" class="btn btn-outline-secondary">Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Muestra el stock actual del producto elegido leyendo el atributo data-stock de la opción.
+        (function () {
+            var selProducto = document.getElementById("selProducto");
+            var lblStock = document.getElementById("lblStock");
+
+            function actualizarStock() {
+                var opcion = selProducto.options[selProducto.selectedIndex];
+                var stock = opcion ? opcion.getAttribute("data-stock") : null;
+                lblStock.textContent = (stock !== null && stock !== "") ? stock : "—";
+            }
+
+            selProducto.addEventListener("change", actualizarStock);
+            actualizarStock();
+        })();
+    </script>
+}

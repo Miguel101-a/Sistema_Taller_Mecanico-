@@ -1,18 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using TallerJuan.Entidades;
 using TallerJuan.Negocio;
+using TallerJuan.Web.Models;
 using TallerJuan.Web.Seguridad;
 
 namespace TallerJuan.Web.Controllers
 {
     /// <summary>
-    /// Módulo de Inventario y Repuestos (Fase 4): CRUD de productos con alerta de stock mínimo.
-    /// Los movimientos de inventario son de la Fase 5; aquí el stock solo se define al crear.
-    /// Permisos por acción (VER / EDITAR) y auditoría.
+    /// Módulo de Inventario y Repuestos: CRUD de productos con alerta de stock mínimo (Fase 4) y
+    /// movimientos de inventario (Fase 5, N:M PRODUCTO ↔ ORDEN_TRABAJO) que mueven el stock de forma
+    /// transaccional. Permisos por acción (VER / EDITAR) y auditoría.
     /// </summary>
     public class InventarioController : Controller
     {
         private readonly CN_Producto _negocio = new CN_Producto();
+        private readonly CN_MovimientoInventario _movimientos = new CN_MovimientoInventario();
+        private readonly CN_OrdenTrabajo _ordenes = new CN_OrdenTrabajo();
 
         private IActionResult? VerificarPermiso(string clave)
         {
@@ -136,6 +139,81 @@ namespace TallerJuan.Web.Controllers
             }
 
             return RedirectToAction(nameof(Index));
+        }
+
+        // ==================================================================================
+        // FASE 5 — Movimientos de inventario (N:M PRODUCTO ↔ ORDEN_TRABAJO)
+        // ==================================================================================
+
+        /// <summary>Productos ACTIVOS, ordenados por nombre (para el dropdown de movimientos).</summary>
+        private List<Producto> ProductosActivos() =>
+            _negocio.Listar()
+                .Where(p => p.Estado.Trim().ToUpperInvariant() == "ACTIVO")
+                .OrderBy(p => p.Nombre)
+                .ToList();
+
+        /// <summary>Órdenes de trabajo no ENTREGADAS (las únicas que admiten movimientos).</summary>
+        private List<OrdenTrabajo> OrdenesAbiertas() =>
+            _ordenes.Listar()
+                .Where(o => !CN_OrdenTrabajo.EsEntregada(o.Estado))
+                .OrderByDescending(o => o.NumeroOrden)
+                .ToList();
+
+        // ----------------------------------------------------------------------------------
+        // Listado de movimientos
+        // ----------------------------------------------------------------------------------
+
+        [HttpGet]
+        public IActionResult Movimientos()
+        {
+            var redir = VerificarPermiso("INVENTARIO_VER");
+            if (redir != null) return redir;
+
+            return View(_movimientos.Listar());
+        }
+
+        // ----------------------------------------------------------------------------------
+        // Registrar movimiento (INGRESO / SALIDA)
+        // ----------------------------------------------------------------------------------
+
+        [HttpGet]
+        public IActionResult RegistrarMovimiento()
+        {
+            var redir = VerificarPermiso("INVENTARIO_EDITAR");
+            if (redir != null) return redir;
+
+            var modelo = new MovimientoCrearViewModel
+            {
+                Productos = ProductosActivos(),
+                Ordenes = OrdenesAbiertas()
+            };
+            return View(modelo);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RegistrarMovimiento(MovimientoCrearViewModel modelo)
+        {
+            var redir = VerificarPermiso("INVENTARIO_EDITAR");
+            if (redir != null) return redir;
+
+            try
+            {
+                _movimientos.Registrar(modelo.Movimiento, UsuarioActual);
+
+                // Releemos el producto para informar el stock resultante en el mensaje de éxito.
+                Producto? producto = _negocio.Obtener(modelo.Movimiento.ProductoCodigo);
+                string stock = producto != null ? $" Stock actual: {producto.StockActual}." : string.Empty;
+                TempData["Exito"] = $"Movimiento de {modelo.Movimiento.Tipo} registrado correctamente.{stock}";
+                return RedirectToAction(nameof(Movimientos));
+            }
+            catch (InvalidOperationException ex)
+            {
+                ViewBag.Error = ex.Message;
+                modelo.Productos = ProductosActivos();
+                modelo.Ordenes = OrdenesAbiertas();
+                return View(modelo);
+            }
         }
     }
 }

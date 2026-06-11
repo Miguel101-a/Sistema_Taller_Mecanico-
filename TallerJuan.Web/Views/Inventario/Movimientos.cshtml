@@ -1,0 +1,81 @@
+@model List<MovimientoInventario>
+@{
+    ViewData["Title"] = "Movimientos de Inventario";
+    var sesion = Context.Session;
+    bool puedeEditar = SesionWeb.TienePermiso(sesion, "INVENTARIO_EDITAR");
+}
+
+<div class="sgtmj-encabezado">
+    <div>
+        <h1><i class="bi bi-arrow-left-right me-2"></i>Movimientos de Inventario</h1>
+        <p class="text-muted mb-0">
+            Ingresos y salidas de repuestos asociados a órdenes de trabajo
+            <span class="text-muted">(PRODUCTO ↔ ORDEN_TRABAJO)</span>.
+        </p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Volver al inventario
+        </a>
+        @if (puedeEditar)
+        {
+            <a asp-action="RegistrarMovimiento" class="btn btn-sgtmj-primario">
+                <i class="bi bi-plus-lg me-1"></i>Registrar movimiento
+            </a>
+        }
+    </div>
+</div>
+
+<div class="card sgtmj-card shadow-sm border-0">
+    <div class="sgtmj-tabla-herramientas">
+        <input type="search" class="form-control sgtmj-buscador" placeholder="Buscar movimiento…"
+               data-tabla="tablaMovimientos" data-contador="contadorMovimientos" autocomplete="off" />
+        <span class="sgtmj-contador" id="contadorMovimientos"></span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tablaMovimientos">
+            <thead class="table-light">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Producto</th>
+                    <th>Tipo</th>
+                    <th class="text-end">Cantidad</th>
+                    <th>Orden</th>
+                    <th>Motivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr data-sin-filtro>
+                        <td colspan="6" class="text-center text-muted py-4">No hay movimientos de inventario registrados.</td>
+                    </tr>
+                }
+                @foreach (var m in Model)
+                {
+                    bool esSalida = m.Tipo.Trim().ToUpperInvariant() == "SALIDA";
+                    <tr>
+                        <td>@m.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            <span class="fw-semibold">@m.ProductoNombre</span>
+                            <span class="text-muted small d-block">@m.ProductoCodigo</span>
+                        </td>
+                        <td>
+                            <span class="sgtmj-badge @(esSalida ? "sgtmj-mov-salida" : "sgtmj-mov-ingreso")">
+                                <i class="bi @(esSalida ? "bi-box-arrow-up" : "bi-box-arrow-in-down") me-1"></i>@m.Tipo
+                            </span>
+                        </td>
+                        <td class="text-end fw-semibold">@m.Cantidad</td>
+                        <td>
+                            <a asp-controller="Ordenes" asp-action="Detalle" asp-route-id="@m.OrdenTrabajoNumeroOrden"
+                               class="text-decoration-none">
+                                <i class="bi bi-wrench-adjustable me-1"></i>N° @m.OrdenTrabajoNumeroOrden
+                            </a>
+                        </td>
+                        <td>@(string.IsNullOrWhiteSpace(m.Motivo) ? "—" : m.Motivo)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

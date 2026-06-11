@@ -12,12 +12,17 @@
         <h1><i class="bi bi-box-seam me-2"></i>Inventario y Repuestos</h1>
         <p class="text-muted mb-0">Catálogo de productos y repuestos del taller.</p>
     </div>
-    @if (puedeEditar)
-    {
-        <a asp-action="Crear" class="btn btn-sgtmj-primario">
-            <i class="bi bi-plus-lg me-1"></i>Nuevo producto
+    <div class="d-flex gap-2">
+        <a asp-action="Movimientos" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left-right me-1"></i>Movimientos
         </a>
-    }
+        @if (puedeEditar)
+        {
+            <a asp-action="Crear" class="btn btn-sgtmj-primario">
+                <i class="bi bi-plus-lg me-1"></i>Nuevo producto
+            </a>
+        }
+    </div>
 </div>
 
 @* Aviso ámbar si hay productos en o por debajo del stock mínimo. *@

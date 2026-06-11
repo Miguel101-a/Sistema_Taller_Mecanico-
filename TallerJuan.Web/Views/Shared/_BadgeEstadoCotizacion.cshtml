@@ -1,0 +1,13 @@
+@model string
+@{
+    // Mapea el estado de la cotización a su clase CSS de color. Reutilizable en listado y detalle.
+    string estado = (Model ?? string.Empty).Trim().ToUpperInvariant();
+    string clase = estado switch
+    {
+        "PENDIENTE" => "sgtmj-cotiz-pendiente",
+        "APROBADA" => "sgtmj-cotiz-aprobada",
+        "RECHAZADA" => "sgtmj-cotiz-rechazada",
+        _ => "sgtmj-estado-inactivo"
+    };
+}
+<span class="sgtmj-badge @clase">@(string.IsNullOrWhiteSpace(estado) ? "—" : estado)</span>
