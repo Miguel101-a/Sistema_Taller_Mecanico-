@@ -290,3 +290,107 @@ body {
   display: block;
   margin: 0 auto 1rem;
 }
+
+/* ============================================================
+   FASE 4 - Maestros y Órdenes de Trabajo
+   ============================================================ */
+
+/* ---------------------- Cabecera de listado ---------------------- */
+.sgtmj-encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+.sgtmj-encabezado h1 {
+  font-size: 1.5rem;
+  margin-bottom: .25rem;
+}
+
+/* ---------------------- Buscador en vivo + contador ---------------------- */
+.sgtmj-tabla-herramientas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .85rem 1rem;
+  border-bottom: 1px solid var(--sgtmj-borde);
+  flex-wrap: wrap;
+}
+.sgtmj-buscador {
+  max-width: 340px;
+  flex: 1 1 220px;
+}
+.sgtmj-contador {
+  color: var(--sgtmj-texto-suave);
+  font-size: .85rem;
+  white-space: nowrap;
+}
+
+/* ---------------------- Badges de estado (ACTIVO / INACTIVO) ---------------------- */
+.sgtmj-badge {
+  display: inline-block;
+  padding: .28em .6em;
+  font-size: .75rem;
+  font-weight: 600;
+  border-radius: .35rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+.sgtmj-estado-activo {
+  background-color: #DCFCE7;
+  color: #166534;
+}
+.sgtmj-estado-inactivo {
+  background-color: #E5E7EB;
+  color: #4B5563;
+}
+
+/* ---------------------- Badges de estado de orden de trabajo ---------------------- */
+.sgtmj-orden-recibido {
+  background-color: #E2E8F0;
+  color: #334155;          /* gris azulado */
+}
+.sgtmj-orden-en-diagnostico {
+  background-color: #FEF3C7;
+  color: #92400E;          /* ámbar (--sgtmj-acento) */
+}
+.sgtmj-orden-en-reparacion {
+  background-color: #DBEAFE;
+  color: #1D4ED8;          /* azul (--sgtmj-primario) */
+}
+.sgtmj-orden-finalizado {
+  background-color: #DCFCE7;
+  color: #166534;          /* verde (--sgtmj-exito) */
+}
+.sgtmj-orden-entregado {
+  background-color: #374151;
+  color: #FFFFFF;          /* gris oscuro */
+}
+
+/* ---------------------- Alerta de stock mínimo ---------------------- */
+.sgtmj-stock-bajo {
+  background-color: #FEF3C7;
+  color: #92400E;
+}
+
+/* ---------------------- Tarjetas de diagnóstico ---------------------- */
+.sgtmj-diagnostico {
+  background-color: var(--sgtmj-superficie);
+  border: 1px solid var(--sgtmj-borde);
+  border-left: 3px solid var(--sgtmj-primario);
+  border-radius: .5rem;
+  padding: .85rem 1rem;
+  margin-bottom: .75rem;
+}
+.sgtmj-diagnostico .sgtmj-diagnostico-fecha {
+  color: var(--sgtmj-texto-suave);
+  font-size: .8rem;
+}
+
+/* Fila oculta por el buscador en vivo. */
+tr.sgtmj-oculto {
+  display: none;
+}

@@ -1,0 +1,110 @@
+@model List<Producto>
+@{
+    ViewData["Title"] = "Inventario y Repuestos";
+    var sesion = Context.Session;
+    bool puedeEditar = SesionWeb.TienePermiso(sesion, "INVENTARIO_EDITAR");
+    var alertas = ViewBag.AlertasStock as List<Producto> ?? new List<Producto>();
+    var cultura = new System.Globalization.CultureInfo("es-BO");
+}
+
+<div class="sgtmj-encabezado">
+    <div>
+        <h1><i class="bi bi-box-seam me-2"></i>Inventario y Repuestos</h1>
+        <p class="text-muted mb-0">Catálogo de productos y repuestos del taller.</p>
+    </div>
+    @if (puedeEditar)
+    {
+        <a asp-action="Crear" class="btn btn-sgtmj-primario">
+            <i class="bi bi-plus-lg me-1"></i>Nuevo producto
+        </a>
+    }
+</div>
+
+@* Aviso ámbar si hay productos en o por debajo del stock mínimo. *@
+@if (alertas.Count > 0)
+{
+    <div class="alert sgtmj-stock-bajo border-0 d-flex align-items-start">
+        <i class="bi bi-exclamation-triangle fs-5 me-2"></i>
+        <div>
+            <strong>@alertas.Count producto(s) en o por debajo del stock mínimo.</strong>
+            <div class="small">@string.Join(", ", alertas.Select(p => $"{p.Nombre} ({p.StockActual})"))</div>
+        </div>
+    </div>
+}
+
+<div class="card sgtmj-card shadow-sm border-0">
+    <div class="sgtmj-tabla-herramientas">
+        <input type="search" class="form-control sgtmj-buscador" placeholder="Buscar producto…"
+               data-tabla="tablaProductos" data-contador="contadorProductos" autocomplete="off" />
+        <span class="sgtmj-contador" id="contadorProductos"></span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tablaProductos">
+            <thead class="table-light">
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th class="text-end">Stock</th>
+                    <th class="text-end">Precio venta</th>
+                    <th>Estado</th>
+                    @if (puedeEditar)
+                    {
+                        <th class="text-end">Acciones</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr data-sin-filtro>
+                        <td colspan="7" class="text-center text-muted py-4">No hay productos registrados.</td>
+                    </tr>
+                }
+                @foreach (var p in Model)
+                {
+                    bool activo = p.Estado.Trim().ToUpperInvariant() == "ACTIVO";
+                    <tr class="@(activo ? "" : "text-muted opacity-75")">
+                        <td class="fw-semibold">@p.Codigo</td>
+                        <td>@p.Nombre</td>
+                        <td>@(string.IsNullOrWhiteSpace(p.Categoria) ? "—" : p.Categoria)</td>
+                        <td class="text-end">
+                            @if (p.StockBajo)
+                            {
+                                <span class="sgtmj-badge sgtmj-stock-bajo">
+                                    <i class="bi bi-exclamation-triangle me-1"></i>@p.StockActual / @p.StockMinimo
+                                </span>
+                            }
+                            else
+                            {
+                                <span>@p.StockActual</span>
+                            }
+                        </td>
+                        <td class="text-end">Bs @p.PrecioVenta.ToString("N2", cultura)</td>
+                        <td>
+                            <span class="sgtmj-badge @(activo ? "sgtmj-estado-activo" : "sgtmj-estado-inactivo")">
+                                @(activo ? "ACTIVO" : "INACTIVO")
+                            </span>
+                        </td>
+                        @if (puedeEditar)
+                        {
+                            <td class="text-end">
+                                <a asp-action="Editar" asp-route-id="@p.Codigo" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-pencil me-1"></i>Editar
+                                </a>
+                                @if (activo)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-warning js-confirmar"
+                                            data-accion="@Url.Action("Eliminar")" data-campo="id" data-valor="@p.Codigo"
+                                            data-mensaje="¿Está seguro de desactivar el producto @p.Nombre?">
+                                        <i class="bi bi-toggle-off me-1"></i>Desactivar
+                                    </button>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

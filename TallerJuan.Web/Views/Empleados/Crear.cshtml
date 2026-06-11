@@ -1,0 +1,83 @@
+@model EmpleadoCrearViewModel
+@{
+    ViewData["Title"] = "Nuevo empleado";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+        <h1 class="h3 mb-4"><i class="bi bi-person-plus me-2"></i>Nuevo empleado</h1>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i>@ViewBag.Error</div>
+        }
+
+        <div class="card sgtmj-card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form asp-action="Crear" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Empleado.Cedula" class="form-label">Cédula <span class="text-danger">*</span></label>
+                            <input asp-for="Empleado.Cedula" class="form-control" maxlength="20" required autofocus />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Empleado.Nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                            <input asp-for="Empleado.Nombre" class="form-control" maxlength="100" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Empleado.Telefono" class="form-label">Teléfono</label>
+                            <input asp-for="Empleado.Telefono" class="form-control" maxlength="20" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Empleado.Cargo" class="form-label">Cargo <span class="text-danger">*</span></label>
+                            <input asp-for="Empleado.Cargo" class="form-control" maxlength="30" required
+                                   placeholder="Ej.: Mecánico, Recepcionista" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Empleado.Especialidad" class="form-label">Especialidad</label>
+                            <input asp-for="Empleado.Especialidad" class="form-control" maxlength="100" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Empleado.Salario" class="form-label">Salario (Bs)</label>
+                            <input asp-for="Empleado.Salario" type="number" step="0.01" min="0" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Empleado.Direccion" class="form-label">Dirección</label>
+                            <input asp-for="Empleado.Direccion" class="form-control" maxlength="200" />
+                        </div>
+
+                        <div class="col-12"><hr class="my-2" /><h6 class="text-muted">Acceso al sistema</h6></div>
+
+                        <div class="col-md-4">
+                            <label asp-for="Empleado.Usuario" class="form-label">Usuario <span class="text-danger">*</span></label>
+                            <input asp-for="Empleado.Usuario" class="form-control" maxlength="50" required autocomplete="off" />
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Contrasena" class="form-label">Contraseña <span class="text-danger">*</span></label>
+                            <input asp-for="Contrasena" type="password" class="form-control" minlength="4" required autocomplete="new-password" />
+                            <small class="text-muted">Mínimo 4 caracteres.</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="Empleado.IdRol" class="form-label">Rol <span class="text-danger">*</span></label>
+                            <select asp-for="Empleado.IdRol" class="form-select" required>
+                                <option value="">— Seleccione un rol —</option>
+                                @foreach (var rol in Model.Roles)
+                                {
+                                    <option value="@rol.IdRol">@rol.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-sgtmj-primario">
+                            <i class="bi bi-save me-1"></i>Guardar
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

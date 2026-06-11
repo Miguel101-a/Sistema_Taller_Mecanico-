@@ -1,0 +1,65 @@
+@model OrdenTrabajo
+@{
+    ViewData["Title"] = $"Editar orden N° {Model.NumeroOrden}";
+    var mecanicos = ViewBag.Mecanicos as List<Empleado> ?? new List<Empleado>();
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <h1 class="h3 mb-4"><i class="bi bi-pencil-square me-2"></i>Editar orden N° @Model.NumeroOrden</h1>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i>@ViewBag.Error</div>
+        }
+
+        <div class="card sgtmj-card shadow-sm border-0">
+            <div class="card-body p-4">
+                <form asp-action="Editar" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="NumeroOrden" />
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Cliente</label>
+                            <input class="form-control" value="@Model.ClienteNombre (@Model.ClienteCedula)" disabled readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Vehículo</label>
+                            <input class="form-control" value="@Model.VehiculoPlaca — @Model.VehiculoDescripcion" disabled readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EmpleadoCedula" class="form-label">Mecánico asignado <span class="text-danger">*</span></label>
+                            <select asp-for="EmpleadoCedula" class="form-select" required>
+                                <option value="">— Seleccione un mecánico —</option>
+                                @foreach (var m in mecanicos)
+                                {
+                                    <option value="@m.Cedula">@m.Nombre — @m.Cargo</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="KilometrajeIngreso" class="form-label">Kilometraje de ingreso</label>
+                            <input asp-for="KilometrajeIngreso" type="number" min="0" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="MotivoVisita" class="form-label">Motivo de la visita</label>
+                            <input asp-for="MotivoVisita" class="form-control" maxlength="200" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="DescripcionProblema" class="form-label">Descripción del problema</label>
+                            <textarea asp-for="DescripcionProblema" class="form-control" maxlength="500" rows="3"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-sgtmj-primario">
+                            <i class="bi bi-save me-1"></i>Guardar cambios
+                        </button>
+                        <a asp-action="Detalle" asp-route-id="@Model.NumeroOrden" class="btn btn-outline-secondary">Volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

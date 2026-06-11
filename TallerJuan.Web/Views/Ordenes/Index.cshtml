@@ -1,0 +1,66 @@
+@model List<OrdenTrabajo>
+@{
+    ViewData["Title"] = "Órdenes de Trabajo";
+    var sesion = Context.Session;
+    bool puedeEditar = SesionWeb.TienePermiso(sesion, "ORDENES_EDITAR");
+}
+
+<div class="sgtmj-encabezado">
+    <div>
+        <h1><i class="bi bi-wrench-adjustable me-2"></i>Órdenes de Trabajo</h1>
+        <p class="text-muted mb-0">Órdenes registradas, su estado y el mecánico asignado.</p>
+    </div>
+    @if (puedeEditar)
+    {
+        <a asp-action="Crear" class="btn btn-sgtmj-primario">
+            <i class="bi bi-plus-lg me-1"></i>Nueva orden
+        </a>
+    }
+</div>
+
+<div class="card sgtmj-card shadow-sm border-0">
+    <div class="sgtmj-tabla-herramientas">
+        <input type="search" class="form-control sgtmj-buscador" placeholder="Buscar orden…"
+               data-tabla="tablaOrdenes" data-contador="contadorOrdenes" autocomplete="off" />
+        <span class="sgtmj-contador" id="contadorOrdenes"></span>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="tablaOrdenes">
+            <thead class="table-light">
+                <tr>
+                    <th>N°</th>
+                    <th>Fecha ingreso</th>
+                    <th>Cliente</th>
+                    <th>Vehículo</th>
+                    <th>Mecánico</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr data-sin-filtro>
+                        <td colspan="7" class="text-center text-muted py-4">No hay órdenes de trabajo registradas.</td>
+                    </tr>
+                }
+                @foreach (var o in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">#@o.NumeroOrden</td>
+                        <td>@o.FechaIngreso.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@o.ClienteNombre</td>
+                        <td>@o.VehiculoPlaca — @o.VehiculoDescripcion</td>
+                        <td>@o.EmpleadoNombre</td>
+                        <td><partial name="_BadgeEstadoOrden" model="@o.Estado" /></td>
+                        <td class="text-end">
+                            <a asp-action="Detalle" asp-route-id="@o.NumeroOrden" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye me-1"></i>Ver detalle
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
