@@ -1,0 +1,58 @@
+@model FacturaCrearViewModel
+@{
+    ViewData["Title"] = "Nueva factura";
+    var cultura = new System.Globalization.CultureInfo("es-BO");
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+        <h1 class="h3 mb-4"><i class="bi bi-receipt me-2"></i>Nueva factura</h1>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i>@ViewBag.Error</div>
+        }
+
+        <div class="card sgtmj-card shadow-sm border-0">
+            <div class="card-body p-4">
+                @if (Model.OrdenesFacturables.Count == 0)
+                {
+                    <div class="alert sgtmj-stock-bajo border-0 mb-0 d-flex align-items-center">
+                        <i class="bi bi-info-circle me-2"></i>No hay órdenes finalizadas pendientes de facturar.
+                    </div>
+                    <a asp-action="Index" class="btn btn-outline-secondary mt-4">Volver</a>
+                }
+                else
+                {
+                    <form asp-action="Crear" method="post">
+                        @Html.AntiForgeryToken()
+                        <p class="text-muted">
+                            La factura nace en <strong>BORRADOR</strong>: una orden solo puede tener
+                            <strong>una</strong> factura (relación 1:1).
+                        </p>
+                        <div class="mb-3">
+                            <label asp-for="NumeroOrden" class="form-label">Orden de trabajo a facturar <span class="text-danger">*</span></label>
+                            <select asp-for="NumeroOrden" class="form-select" required>
+                                <option value="">— Seleccione una orden facturable —</option>
+                                @foreach (var o in Model.OrdenesFacturables)
+                                {
+                                    <option value="@o.NumeroOrden">
+                                        Nº @o.NumeroOrden — @o.VehiculoDescripcion — @o.ClienteNombre (@o.Estado)
+                                    </option>
+                                }
+                            </select>
+                            <div class="form-text">Solo aparecen órdenes FINALIZADO o ENTREGADO sin factura previa.</div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-sgtmj-primario">
+                                <i class="bi bi-save me-1"></i>Crear y agregar líneas
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">Volver</a>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

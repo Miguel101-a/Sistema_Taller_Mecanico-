@@ -1,0 +1,68 @@
+@{
+    ViewData["Title"] = "Reportes y Estadísticas";
+}
+
+<div class="sgtmj-encabezado">
+    <div>
+        <h1><i class="bi bi-bar-chart me-2"></i>Reportes y Estadísticas</h1>
+        <p class="text-muted mb-0">Los 5 reportes del ERS (RF-37 a RF-41). Elija un reporte para configurar el período.</p>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6 col-xl-4">
+        <a asp-action="Ingresos" class="text-decoration-none">
+            <div class="card sgtmj-card sgtmj-reporte-card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="sgtmj-reporte-icono"><i class="bi bi-cash-coin"></i></div>
+                    <h2 class="h5 mt-3 mb-1">Ingresos por período</h2>
+                    <p class="text-muted mb-0 small">RF-37 · Total facturado por día, mes o año (facturas emitidas).</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <a asp-action="Servicios" class="text-decoration-none">
+            <div class="card sgtmj-card sgtmj-reporte-card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="sgtmj-reporte-icono"><i class="bi bi-tools"></i></div>
+                    <h2 class="h5 mt-3 mb-1">Servicios más solicitados</h2>
+                    <p class="text-muted mb-0 small">RF-38 · Servicios con más demanda y su monto facturado.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <a asp-action="Productividad" class="text-decoration-none">
+            <div class="card sgtmj-card sgtmj-reporte-card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="sgtmj-reporte-icono"><i class="bi bi-person-gear"></i></div>
+                    <h2 class="h5 mt-3 mb-1">Productividad por mecánico</h2>
+                    <p class="text-muted mb-0 small">RF-39 · Órdenes atendidas, terminadas y tiempos de entrega.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <a asp-action="Repuestos" class="text-decoration-none">
+            <div class="card sgtmj-card sgtmj-reporte-card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="sgtmj-reporte-icono"><i class="bi bi-box-seam"></i></div>
+                    <h2 class="h5 mt-3 mb-1">Repuestos más utilizados</h2>
+                    <p class="text-muted mb-0 small">RF-40 · Salidas de inventario por repuesto en el período.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-md-6 col-xl-4">
+        <a asp-action="ClientesFrecuentes" class="text-decoration-none">
+            <div class="card sgtmj-card sgtmj-reporte-card shadow-sm border-0 h-100">
+                <div class="card-body">
+                    <div class="sgtmj-reporte-icono"><i class="bi bi-people"></i></div>
+                    <h2 class="h5 mt-3 mb-1">Clientes frecuentes</h2>
+                    <p class="text-muted mb-0 small">RF-41 · Clientes con más órdenes y mayor monto facturado.</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>

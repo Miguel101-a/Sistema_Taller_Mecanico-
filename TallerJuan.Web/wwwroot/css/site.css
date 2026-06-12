@@ -445,3 +445,93 @@ tr.sgtmj-oculto {
   font-size: 1.6rem;
   line-height: 1.1;
 }
+
+/* ============================================================
+   FASE 6 - Facturación y Reportes
+   ============================================================ */
+
+/* ---------------------- Badges de estado de factura ---------------------- */
+.sgtmj-factura-borrador {
+  background-color: #FEF3C7;
+  color: #92400E;          /* ámbar: en edición (borrador) */
+}
+.sgtmj-factura-emitida {
+  background-color: #DCFCE7;
+  color: #166534;          /* verde: emitida */
+}
+.sgtmj-factura-anulada {
+  background-color: #E5E7EB;
+  color: #6B7280;          /* gris suave: anulada */
+  text-decoration: line-through;
+}
+
+/* ---------------------- Panel de reportes (tarjetas) ---------------------- */
+.sgtmj-reporte-card {
+  color: var(--sgtmj-texto);
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.sgtmj-reporte-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sgtmj-primario);
+}
+.sgtmj-reporte-icono {
+  width: 48px;
+  height: 48px;
+  border-radius: .6rem;
+  background-color: #DBEAFE;
+  color: var(--sgtmj-primario);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+/* ---------------------- Total destacado de un reporte ---------------------- */
+.sgtmj-reporte-total {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--sgtmj-primario);
+  line-height: 1.1;
+}
+
+/* ---------------------- Barras horizontales (sin librerías) ---------------------- */
+.sgtmj-barra {
+  background-color: var(--sgtmj-borde);
+  border-radius: .35rem;
+  height: 12px;
+  width: 100%;
+  overflow: hidden;
+}
+.sgtmj-barra > span {
+  display: block;
+  height: 100%;
+  background-color: var(--sgtmj-primario);
+  border-radius: .35rem;
+  min-width: 2px;
+}
+
+/* ============================================================
+   IMPRESIÓN DE REPORTES (@media print)
+   Oculta el sidebar, la topbar, el pie y los controles; muestra el título de impresión.
+   ============================================================ */
+@media print {
+  .sgtmj-sidebar,
+  .sgtmj-topbar,
+  .sgtmj-footer,
+  .sgtmj-no-print {
+    display: none !important;
+  }
+  .sgtmj-main {
+    padding: 0 !important;
+  }
+  .sgtmj-print-titulo.d-none {
+    display: block !important;
+  }
+  .sgtmj-barra > span {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  a[href]:after {
+    content: "";
+  }
+}

@@ -1,0 +1,90 @@
+@model ReporteFiltroViewModel
+@{
+    ViewData["Title"] = "Clientes frecuentes";
+    var cultura = new System.Globalization.CultureInfo("es-BO");
+    var resultados = ViewBag.Resultados as List<ReporteClienteFrecuente> ?? new List<ReporteClienteFrecuente>();
+    int maxOrdenes = resultados.Count > 0 ? resultados.Max(r => r.TotalOrdenes) : 0;
+    decimal montoTotal = resultados.Sum(r => r.MontoFacturado);
+}
+
+<div class="sgtmj-encabezado sgtmj-no-print">
+    <div>
+        <h1><i class="bi bi-people me-2"></i>Clientes frecuentes</h1>
+        <p class="text-muted mb-0">RF-41 · Órdenes y monto facturado (facturas EMITIDAS) por cliente en el período.</p>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Volver</a>
+</div>
+
+<div class="card sgtmj-card shadow-sm border-0 mb-4 sgtmj-no-print">
+    <div class="card-body">
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger py-2"><i class="bi bi-exclamation-triangle me-1"></i>@ViewBag.Error</div>
+        }
+        <form asp-action="ClientesFrecuentes" method="get" class="row g-3 align-items-end">
+            <div class="col-sm-4">
+                <label class="form-label">Desde</label>
+                <input type="date" name="fechaInicio" class="form-control" value="@Model.FechaInicio.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-sm-4">
+                <label class="form-label">Hasta</label>
+                <input type="date" name="fechaFin" class="form-control" value="@Model.FechaFin.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-sm-4 d-flex gap-2">
+                <button type="submit" class="btn btn-sgtmj-primario"><i class="bi bi-search me-1"></i>Generar</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimir</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="sgtmj-print-titulo d-none">
+    <h2 class="h4 mb-1">Clientes frecuentes (RF-41)</h2>
+    <p class="text-muted mb-3">Del @Model.FechaInicio.ToString("dd/MM/yyyy") al @Model.FechaFin.ToString("dd/MM/yyyy")</p>
+</div>
+
+@if (resultados.Count == 0)
+{
+    <div class="alert sgtmj-stock-bajo border-0 d-flex align-items-center">
+        <i class="bi bi-info-circle me-2"></i>No se encontraron datos en el período seleccionado.
+    </div>
+}
+else
+{
+    <div class="card sgtmj-card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Cédula</th>
+                        <th>Cliente</th>
+                        <th>Teléfono</th>
+                        <th class="text-end">Órdenes</th>
+                        <th style="width:25%">Comparativa</th>
+                        <th class="text-end">Monto facturado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in resultados)
+                    {
+                        int ancho = maxOrdenes > 0 ? (int)Math.Round((double)r.TotalOrdenes / maxOrdenes * 100) : 0;
+                        <tr>
+                            <td class="text-muted">@r.Cedula</td>
+                            <td class="fw-semibold">@r.Nombre</td>
+                            <td>@(string.IsNullOrWhiteSpace(r.Telefono) ? "—" : r.Telefono)</td>
+                            <td class="text-end">@r.TotalOrdenes</td>
+                            <td><div class="sgtmj-barra"><span style="width:@ancho%"></span></div></td>
+                            <td class="text-end fw-semibold">Bs @r.MontoFacturado.ToString("N2", cultura)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="table-light">
+                    <tr class="fw-bold">
+                        <td colspan="5">TOTAL FACTURADO</td>
+                        <td class="text-end">Bs @montoTotal.ToString("N2", cultura)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+}

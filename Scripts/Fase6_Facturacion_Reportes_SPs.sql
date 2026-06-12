@@ -1,0 +1,317 @@
+-- ============================================================
+-- FASE 6 - SPs de Facturacion y Reportes
+-- Motor: SQL Server 2012+
+-- Ejecutar UNA sola vez sobre TallerJuanDB
+-- ============================================================
+USE TallerJuanDB;
+GO
+
+-- ==================== FACTURACION (N:M FACTURA <-> PRODUCTO, 1:1 con ORDEN) ====================
+
+-- Ordenes facturables: FINALIZADO o ENTREGADO y SIN factura previa (respeta el 1:1).
+IF OBJECT_ID('sp_Orden_Facturables','P') IS NOT NULL DROP PROCEDURE sp_Orden_Facturables;
+GO
+CREATE PROCEDURE sp_Orden_Facturables
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT O.NUMERO_ORDEN, O.FECHA_INGRESO, O.ESTADO,
+           V.MARCA + ' ' + V.MODELO AS VEHICULO_DESCRIPCION,
+           C.NOMBRE AS CLIENTE_NOMBRE
+    FROM ORDEN_TRABAJO O
+    INNER JOIN VEHICULO V ON O.VEHICULO_PLACA = V.PLACA
+    INNER JOIN CLIENTE  C ON V.CLIENTE_CEDULA = C.CEDULA
+    WHERE O.ESTADO IN ('FINALIZADO', 'ENTREGADO')
+      AND NOT EXISTS (SELECT 1 FROM FACTURA F WHERE F.ORDEN_TRABAJO_NUMERO_ORDEN = O.NUMERO_ORDEN)
+    ORDER BY O.NUMERO_ORDEN DESC;
+END
+GO
+
+IF OBJECT_ID('sp_Factura_Listar','P') IS NOT NULL DROP PROCEDURE sp_Factura_Listar;
+GO
+CREATE PROCEDURE sp_Factura_Listar
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT F.NUMERO_FACTURA, F.FECHA_EMISION, F.SUBTOTAL, F.IVA, F.TOTAL, F.ESTADO,
+           F.ORDEN_TRABAJO_NUMERO_ORDEN,
+           V.MARCA + ' ' + V.MODELO AS VEHICULO_DESCRIPCION,
+           C.CEDULA AS CLIENTE_CEDULA, C.NOMBRE AS CLIENTE_NOMBRE
+    FROM FACTURA F
+    INNER JOIN ORDEN_TRABAJO O ON F.ORDEN_TRABAJO_NUMERO_ORDEN = O.NUMERO_ORDEN
+    INNER JOIN VEHICULO V ON O.VEHICULO_PLACA = V.PLACA
+    INNER JOIN CLIENTE  C ON V.CLIENTE_CEDULA = C.CEDULA
+    ORDER BY F.NUMERO_FACTURA DESC;
+END
+GO
+
+IF OBJECT_ID('sp_Factura_Obtener','P') IS NOT NULL DROP PROCEDURE sp_Factura_Obtener;
+GO
+CREATE PROCEDURE sp_Factura_Obtener
+    @NumeroFactura INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT F.NUMERO_FACTURA, F.FECHA_EMISION, F.SUBTOTAL, F.IVA, F.TOTAL, F.ESTADO,
+           F.ORDEN_TRABAJO_NUMERO_ORDEN,
+           V.MARCA + ' ' + V.MODELO AS VEHICULO_DESCRIPCION,
+           C.CEDULA AS CLIENTE_CEDULA, C.NOMBRE AS CLIENTE_NOMBRE
+    FROM FACTURA F
+    INNER JOIN ORDEN_TRABAJO O ON F.ORDEN_TRABAJO_NUMERO_ORDEN = O.NUMERO_ORDEN
+    INNER JOIN VEHICULO V ON O.VEHICULO_PLACA = V.PLACA
+    INNER JOIN CLIENTE  C ON V.CLIENTE_CEDULA = C.CEDULA
+    WHERE F.NUMERO_FACTURA = @NumeroFactura;
+END
+GO
+
+-- Crea la factura en estado BORRADOR (para armar las lineas antes de emitir).
+IF OBJECT_ID('sp_Factura_Insertar','P') IS NOT NULL DROP PROCEDURE sp_Factura_Insertar;
+GO
+CREATE PROCEDURE sp_Factura_Insertar
+    @NumeroOrden INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO FACTURA (ESTADO, ORDEN_TRABAJO_NUMERO_ORDEN)
+    VALUES ('BORRADOR', @NumeroOrden);
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS NUMERO_FACTURA;
+END
+GO
+
+IF OBJECT_ID('sp_Factura_CambiarEstado','P') IS NOT NULL DROP PROCEDURE sp_Factura_CambiarEstado;
+GO
+CREATE PROCEDURE sp_Factura_CambiarEstado
+    @NumeroFactura INT,
+    @Estado        VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE FACTURA SET ESTADO = @Estado,
+        FECHA_EMISION = CASE WHEN @Estado = 'EMITIDA' THEN GETDATE() ELSE FECHA_EMISION END
+    WHERE NUMERO_FACTURA = @NumeroFactura;
+END
+GO
+
+-- Recalcula subtotal, IVA 13% y total de la factura.
+IF OBJECT_ID('sp_Factura_RecalcularTotales','P') IS NOT NULL DROP PROCEDURE sp_Factura_RecalcularTotales;
+GO
+CREATE PROCEDURE sp_Factura_RecalcularTotales
+    @NumeroFactura INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DECLARE @Subtotal DECIMAL(10,2), @Iva DECIMAL(10,2);
+
+    SELECT @Subtotal = ISNULL(SUM(SUBTOTAL), 0)
+    FROM DETALLE_FACTURA
+    WHERE FACTURA_NUMERO_FACTURA = @NumeroFactura;
+
+    SET @Iva = ROUND(@Subtotal * 0.13, 2);  -- IVA 13% Bolivia
+
+    UPDATE FACTURA
+    SET SUBTOTAL = @Subtotal, IVA = @Iva, TOTAL = @Subtotal + @Iva
+    WHERE NUMERO_FACTURA = @NumeroFactura;
+END
+GO
+
+-- Repuestos usados en la orden (salidas netas de MOVIMIENTO_INVENTARIO) para precargar lineas.
+IF OBJECT_ID('sp_Factura_RepuestosDeOrden','P') IS NOT NULL DROP PROCEDURE sp_Factura_RepuestosDeOrden;
+GO
+CREATE PROCEDURE sp_Factura_RepuestosDeOrden
+    @NumeroOrden INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT M.PRODUCTO_CODIGO, P.NOMBRE AS PRODUCTO_NOMBRE, P.PRECIO_VENTA,
+           SUM(CASE WHEN M.TIPO = 'SALIDA' THEN M.CANTIDAD ELSE -M.CANTIDAD END) AS CANTIDAD_NETA
+    FROM MOVIMIENTO_INVENTARIO M
+    INNER JOIN PRODUCTO P ON M.PRODUCTO_CODIGO = P.CODIGO
+    WHERE M.ORDEN_TRABAJO_NUMERO_ORDEN = @NumeroOrden
+    GROUP BY M.PRODUCTO_CODIGO, P.NOMBRE, P.PRECIO_VENTA
+    HAVING SUM(CASE WHEN M.TIPO = 'SALIDA' THEN M.CANTIDAD ELSE -M.CANTIDAD END) > 0;
+END
+GO
+
+IF OBJECT_ID('sp_DetalleFactura_PorFactura','P') IS NOT NULL DROP PROCEDURE sp_DetalleFactura_PorFactura;
+GO
+CREATE PROCEDURE sp_DetalleFactura_PorFactura
+    @NumeroFactura INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT D.FACTURA_NUMERO_FACTURA, D.PRODUCTO_CODIGO, P.NOMBRE AS PRODUCTO_NOMBRE,
+           D.ID_DETALLE, D.DESCRIPCION, D.TIPO, D.CANTIDAD, D.PRECIO_UNITARIO, D.SUBTOTAL
+    FROM DETALLE_FACTURA D
+    INNER JOIN PRODUCTO P ON D.PRODUCTO_CODIGO = P.CODIGO
+    WHERE D.FACTURA_NUMERO_FACTURA = @NumeroFactura
+    ORDER BY D.ID_DETALLE;
+END
+GO
+
+IF OBJECT_ID('sp_DetalleFactura_Insertar','P') IS NOT NULL DROP PROCEDURE sp_DetalleFactura_Insertar;
+GO
+CREATE PROCEDURE sp_DetalleFactura_Insertar
+    @NumeroFactura  INT,
+    @ProductoCodigo VARCHAR(20),
+    @Descripcion    VARCHAR(200),
+    @Tipo           VARCHAR(20),   -- 'SERVICIO' o 'REPUESTO'
+    @Cantidad       INT,
+    @PrecioUnitario DECIMAL(10,2)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO DETALLE_FACTURA
+        (FACTURA_NUMERO_FACTURA, PRODUCTO_CODIGO, DESCRIPCION, TIPO, CANTIDAD, PRECIO_UNITARIO, SUBTOTAL)
+    VALUES
+        (@NumeroFactura, @ProductoCodigo, @Descripcion, @Tipo, @Cantidad, @PrecioUnitario,
+         @Cantidad * @PrecioUnitario);
+END
+GO
+
+IF OBJECT_ID('sp_DetalleFactura_Eliminar','P') IS NOT NULL DROP PROCEDURE sp_DetalleFactura_Eliminar;
+GO
+CREATE PROCEDURE sp_DetalleFactura_Eliminar
+    @NumeroFactura  INT,
+    @ProductoCodigo VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    DELETE FROM DETALLE_FACTURA
+    WHERE FACTURA_NUMERO_FACTURA = @NumeroFactura
+      AND PRODUCTO_CODIGO = @ProductoCodigo;
+END
+GO
+
+-- ==================== REPORTES (RF-37 a RF-41 del ERS) ====================
+
+-- RF-37: Ingresos por periodo (DIA / MES / ANIO) sobre facturas EMITIDAS.
+IF OBJECT_ID('sp_Reporte_IngresosPorPeriodo','P') IS NOT NULL DROP PROCEDURE sp_Reporte_IngresosPorPeriodo;
+GO
+CREATE PROCEDURE sp_Reporte_IngresosPorPeriodo
+    @FechaInicio DATETIME,
+    @FechaFin    DATETIME,
+    @Agrupacion  VARCHAR(10)   -- 'DIA', 'MES' o 'ANIO'
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT
+        CASE @Agrupacion
+            WHEN 'DIA'  THEN CONVERT(VARCHAR(10), F.FECHA_EMISION, 103)      -- dd/mm/aaaa
+            WHEN 'MES'  THEN FORMAT(F.FECHA_EMISION, 'MM/yyyy')
+            ELSE             CONVERT(VARCHAR(4), YEAR(F.FECHA_EMISION))
+        END AS PERIODO,
+        MIN(F.FECHA_EMISION) AS FECHA_ORDEN,   -- para ordenar cronologicamente
+        COUNT(*)        AS CANTIDAD_FACTURAS,
+        SUM(F.SUBTOTAL) AS SUBTOTAL,
+        SUM(F.IVA)      AS IVA,
+        SUM(F.TOTAL)    AS TOTAL
+    FROM FACTURA F
+    WHERE F.ESTADO = 'EMITIDA'
+      AND F.FECHA_EMISION >= @FechaInicio
+      AND F.FECHA_EMISION < DATEADD(DAY, 1, @FechaFin)
+    GROUP BY
+        CASE @Agrupacion
+            WHEN 'DIA'  THEN CONVERT(VARCHAR(10), F.FECHA_EMISION, 103)
+            WHEN 'MES'  THEN FORMAT(F.FECHA_EMISION, 'MM/yyyy')
+            ELSE             CONVERT(VARCHAR(4), YEAR(F.FECHA_EMISION))
+        END
+    ORDER BY FECHA_ORDEN;
+END
+GO
+
+-- RF-38: Servicios mas solicitados (lineas TIPO = SERVICIO de facturas EMITIDAS).
+IF OBJECT_ID('sp_Reporte_ServiciosMasSolicitados','P') IS NOT NULL DROP PROCEDURE sp_Reporte_ServiciosMasSolicitados;
+GO
+CREATE PROCEDURE sp_Reporte_ServiciosMasSolicitados
+    @FechaInicio DATETIME,
+    @FechaFin    DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT P.CODIGO, P.NOMBRE,
+           SUM(D.CANTIDAD) AS VECES_SOLICITADO,
+           SUM(D.SUBTOTAL) AS MONTO_TOTAL
+    FROM DETALLE_FACTURA D
+    INNER JOIN FACTURA F  ON D.FACTURA_NUMERO_FACTURA = F.NUMERO_FACTURA
+    INNER JOIN PRODUCTO P ON D.PRODUCTO_CODIGO = P.CODIGO
+    WHERE D.TIPO = 'SERVICIO'
+      AND F.ESTADO = 'EMITIDA'
+      AND F.FECHA_EMISION >= @FechaInicio
+      AND F.FECHA_EMISION < DATEADD(DAY, 1, @FechaFin)
+    GROUP BY P.CODIGO, P.NOMBRE
+    ORDER BY VECES_SOLICITADO DESC;
+END
+GO
+
+-- RF-39: Productividad por mecanico (ordenes atendidas y tiempos en el periodo).
+IF OBJECT_ID('sp_Reporte_ProductividadMecanico','P') IS NOT NULL DROP PROCEDURE sp_Reporte_ProductividadMecanico;
+GO
+CREATE PROCEDURE sp_Reporte_ProductividadMecanico
+    @FechaInicio DATETIME,
+    @FechaFin    DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT E.CEDULA, E.NOMBRE,
+           COUNT(*) AS ORDENES_ATENDIDAS,
+           SUM(CASE WHEN O.ESTADO IN ('FINALIZADO','ENTREGADO') THEN 1 ELSE 0 END) AS ORDENES_TERMINADAS,
+           AVG(CASE WHEN O.FECHA_ENTREGA IS NOT NULL
+                    THEN CAST(DATEDIFF(DAY, O.FECHA_INGRESO, O.FECHA_ENTREGA) AS DECIMAL(10,2))
+               END) AS PROMEDIO_DIAS_ENTREGA
+    FROM ORDEN_TRABAJO O
+    INNER JOIN EMPLEADO E ON O.EMPLEADO_CEDULA = E.CEDULA
+    WHERE O.FECHA_INGRESO >= @FechaInicio
+      AND O.FECHA_INGRESO < DATEADD(DAY, 1, @FechaFin)
+    GROUP BY E.CEDULA, E.NOMBRE
+    ORDER BY ORDENES_ATENDIDAS DESC;
+END
+GO
+
+-- RF-40: Repuestos mas utilizados (salidas de stock en el periodo).
+IF OBJECT_ID('sp_Reporte_RepuestosMasUtilizados','P') IS NOT NULL DROP PROCEDURE sp_Reporte_RepuestosMasUtilizados;
+GO
+CREATE PROCEDURE sp_Reporte_RepuestosMasUtilizados
+    @FechaInicio DATETIME,
+    @FechaFin    DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT P.CODIGO, P.NOMBRE, P.STOCK_ACTUAL,
+           SUM(M.CANTIDAD) AS CANTIDAD_UTILIZADA,
+           COUNT(DISTINCT M.ORDEN_TRABAJO_NUMERO_ORDEN) AS ORDENES_DISTINTAS
+    FROM MOVIMIENTO_INVENTARIO M
+    INNER JOIN PRODUCTO P ON M.PRODUCTO_CODIGO = P.CODIGO
+    WHERE M.TIPO = 'SALIDA'
+      AND M.FECHA >= @FechaInicio
+      AND M.FECHA < DATEADD(DAY, 1, @FechaFin)
+    GROUP BY P.CODIGO, P.NOMBRE, P.STOCK_ACTUAL
+    ORDER BY CANTIDAD_UTILIZADA DESC;
+END
+GO
+
+-- RF-41: Clientes frecuentes (ordenes y monto facturado por cliente en el periodo).
+IF OBJECT_ID('sp_Reporte_ClientesFrecuentes','P') IS NOT NULL DROP PROCEDURE sp_Reporte_ClientesFrecuentes;
+GO
+CREATE PROCEDURE sp_Reporte_ClientesFrecuentes
+    @FechaInicio DATETIME,
+    @FechaFin    DATETIME
+AS
+BEGIN
+    SET NOCOUNT ON;
+    SELECT C.CEDULA, C.NOMBRE, C.TELEFONO,
+           COUNT(DISTINCT O.NUMERO_ORDEN) AS TOTAL_ORDENES,
+           ISNULL(SUM(F.TOTAL), 0) AS MONTO_FACTURADO
+    FROM CLIENTE C
+    INNER JOIN VEHICULO V ON V.CLIENTE_CEDULA = C.CEDULA
+    INNER JOIN ORDEN_TRABAJO O ON O.VEHICULO_PLACA = V.PLACA
+    LEFT JOIN FACTURA F ON F.ORDEN_TRABAJO_NUMERO_ORDEN = O.NUMERO_ORDEN
+                       AND F.ESTADO = 'EMITIDA'
+    WHERE O.FECHA_INGRESO >= @FechaInicio
+      AND O.FECHA_INGRESO < DATEADD(DAY, 1, @FechaFin)
+    GROUP BY C.CEDULA, C.NOMBRE, C.TELEFONO
+    ORDER BY TOTAL_ORDENES DESC, MONTO_FACTURADO DESC;
+END
+GO
+
+PRINT 'Fase 6: SPs de Facturacion y Reportes creados correctamente.';
+GO
