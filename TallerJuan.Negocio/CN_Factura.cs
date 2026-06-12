@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para la cabecera de Facturas (Fase 6). Controla los estados
+    /// Capa de Negocio para la cabecera de Facturas. Controla los estados
     /// (BORRADOR / EMITIDA / ANULADA), fuerza la relación 1:1 con ORDEN_TRABAJO (traduce la
     /// violación de la UNIQUE), exige líneas para emitir, precarga repuestos de la orden y registra
     /// el motivo de anulación en auditoría (la tabla FACTURA no tiene columna de motivo). El detalle

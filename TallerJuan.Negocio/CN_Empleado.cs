@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para Empleados (Fase 4). El empleado es también el usuario del sistema.
+    /// Capa de Negocio para Empleados. El empleado es también el usuario del sistema.
     /// Al crear, hashea la contraseña con Seguridad.HashSHA256 antes de llamar a Datos.
     /// Al editar NO se cambia usuario ni contraseña. Un empleado no puede desactivarse a sí mismo.
     /// Valida, traduce errores de BD y registra la auditoría.

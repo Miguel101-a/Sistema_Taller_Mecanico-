@@ -1,7 +1,7 @@
 namespace TallerJuan.Entidades
 {
     /// <summary>
-    /// Cabecera de una factura (Fase 6). Relación 1:1 con ORDEN_TRABAJO (forzada por la UNIQUE
+    /// Cabecera de una factura. Relación 1:1 con ORDEN_TRABAJO (forzada por la UNIQUE
     /// sobre la FK): una orden solo puede tener UNA factura. El subtotal, el IVA (13%) y el total
     /// se recalculan automáticamente a partir de sus líneas (DETALLE_FACTURA). El número es
     /// autonumérico, correlativo y único (RF-36) y es el identificador principal.

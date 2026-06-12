@@ -4,9 +4,9 @@ namespace TallerJuan.Datos
 {
     /// Utilitario de lectura segura de columnas de un SqlDataReader.
     /// Centraliza el manejo de nulos de la base de datos y tolera que una columna
-    /// no exista en el resultado (devuelve un valor por defecto). Mismo espíritu que
+    /// no exista en el resultado (devuelve un valor por defecto). Mismo que
     /// los métodos LeerTexto/LeerEntero usados en CD_Acceso y CD_Seguridad, reutilizable
-    /// por todas las clases CD_ de la Fase 4.
+    /// por todas las clases.
     
     public static class LectorBD
     {

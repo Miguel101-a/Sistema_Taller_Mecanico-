@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para la cabecera de Facturas (Fase 6). Acceso solo por PROCEDIMIENTOS
+    /// Capa de Datos para la cabecera de Facturas. Acceso solo por PROCEDIMIENTOS
     /// ALMACENADOS (ADO.NET). PROHIBIDO Entity Framework. El detalle (N:M con PRODUCTO) lo maneja
     /// CD_DetalleFactura. La inserción puede lanzar SqlException 2627/2601 si la orden ya tiene
     /// factura (UNIQUE sobre la FK -> relación 1:1); la capa de Negocio lo traduce.

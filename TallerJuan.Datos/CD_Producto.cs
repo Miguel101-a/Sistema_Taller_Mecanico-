@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para el CRUD de Productos/Repuestos (Fase 4). El stock se moverá en la Fase 5;
+    /// Capa de Datos para el CRUD de Productos/Repuestos. El stock se moverá en la Fase 5;
     /// aquí solo se define al crear. Acceso solo por PROCEDIMIENTOS ALMACENADOS (ADO.NET).
     /// PROHIBIDO Entity Framework.
     /// </summary>

@@ -4,7 +4,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para las Órdenes de Trabajo (Fase 4). Controla los estados válidos,
+    /// Capa de Negocio para las Órdenes de Trabajo. Controla los estados válidos,
     /// impide editar/cambiar una orden ya ENTREGADA, valida los datos y registra la auditoría.
     /// </summary>
     public class CN_OrdenTrabajo

@@ -1,7 +1,7 @@
 namespace TallerJuan.Entidades
 {
     /// <summary>
-    /// Cabecera de una cotización (Fase 5) para un cliente y su vehículo. Los subtotales por
+    /// Cabecera de una cotización para un cliente y su vehículo. Los subtotales por
     /// tipo, el IVA (13%) y el total se recalculan automáticamente a partir de sus líneas
     /// (DETALLE_COTIZACION). El número es autonumérico y es el identificador principal.
     /// </summary>

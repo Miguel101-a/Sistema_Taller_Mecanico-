@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para el detalle de Facturas (Fase 6 -> N:M FACTURA ↔ PRODUCTO, la cuarta y
+    /// Capa de Datos para el detalle de Facturas (-> N:M FACTURA ↔ PRODUCTO, la cuarta y
     /// última N:M del proyecto). Acceso solo por PROCEDIMIENTOS ALMACENADOS (ADO.NET). PROHIBIDO
     /// Entity Framework. El SP de inserción puede lanzar SqlException 2627/2601 si se repite el
     /// producto (PK compuesta); la capa de Negocio lo traduce.

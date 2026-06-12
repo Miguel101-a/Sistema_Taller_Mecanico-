@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para el detalle de Cotizaciones (Fase 5 -> N:M COTIZACION ↔ PRODUCTO).
+    /// Capa de Datos para el detalle de Cotizaciones (-> N:M COTIZACION ↔ PRODUCTO).
     /// Acceso solo por PROCEDIMIENTOS ALMACENADOS (ADO.NET). PROHIBIDO Entity Framework.
     /// El SP de inserción puede lanzar SqlException 2627/2601 si se repite el producto (PK compuesta).
     /// </summary>

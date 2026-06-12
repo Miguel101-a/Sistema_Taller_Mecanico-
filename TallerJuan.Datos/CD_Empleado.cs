@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para el CRUD de Empleados (Fase 4). El empleado es también el usuario del sistema.
+    /// Capa de Datos para el CRUD de Empleados. El empleado es también el usuario del sistema.
     /// La contraseña llega ya hasheada desde la capa de Negocio. Acceso solo por PROCEDIMIENTOS
     /// ALMACENADOS (ADO.NET). PROHIBIDO Entity Framework.
     /// </summary>

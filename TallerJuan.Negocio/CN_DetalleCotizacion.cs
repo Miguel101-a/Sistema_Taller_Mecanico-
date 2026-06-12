@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para el detalle de Cotizaciones (Fase 5, N:M COTIZACION ↔ PRODUCTO).
+    /// Capa de Negocio para el detalle de Cotizaciones (N:M COTIZACION ↔ PRODUCTO).
     /// Valida las líneas, exige que la cotización esté PENDIENTE y el producto ACTIVO, traduce el
     /// producto duplicado (PK compuesta) y, tras cada cambio, recalcula los totales (IVA 13%).
     /// Registra la auditoría.

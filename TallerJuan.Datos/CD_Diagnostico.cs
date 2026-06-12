@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para los Diagnósticos de una orden de trabajo (Fase 4).
+    /// Capa de Datos para los Diagnósticos de una orden de trabajo.
     /// Acceso solo por PROCEDIMIENTOS ALMACENADOS (ADO.NET). PROHIBIDO Entity Framework.
     /// </summary>
     public class CD_Diagnostico

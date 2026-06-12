@@ -1,7 +1,7 @@
 namespace TallerJuan.Entidades
 {
     
-    /// Línea de detalle de una cotización (Fase 5). Es la tabla intermedia N:M entre
+    /// Línea de detalle de una cotización. Es la tabla intermedia N:M entre
     /// COTIZACION y PRODUCTO. La PK compuesta (cotización, producto) impide repetir el mismo
     /// producto dentro de una cotización. El subtotal es CANTIDAD * PRECIO_UNITARIO.
     

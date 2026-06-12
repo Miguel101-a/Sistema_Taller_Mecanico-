@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para Productos/Repuestos (Fase 4). El stock se moverá en la Fase 5;
+    /// Capa de Negocio para Productos/Repuestos. El stock se moverá en la Fase 5;
     /// aquí solo se define al crear. Valida, traduce errores de BD y registra la auditoría.
     /// </summary>
     public class CN_Producto

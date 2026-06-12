@@ -4,7 +4,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para la cabecera de Cotizaciones (Fase 5). Controla los estados
+    /// Capa de Negocio para la cabecera de Cotizaciones. Controla los estados
     /// (PENDIENTE / APROBADA / RECHAZADA), valida cliente, vehículo y validez, e impide cambiar
     /// una cotización ya cerrada. Registra la auditoría. El detalle (N:M) lo maneja
     /// CN_DetalleCotizacion.

@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para la gestión de Roles y Permisos (Fase 3).
+    /// Capa de Datos para la gestión de Roles y Permisos.
     /// Demuestra el manejo de la relación N:M ROL_PERMISO desde C#: asignar y quitar
     /// filas de la tabla intermedia, además del CRUD básico de roles.
     /// Toda la comunicación con la base de datos se hace mediante PROCEDIMIENTOS ALMACENADOS

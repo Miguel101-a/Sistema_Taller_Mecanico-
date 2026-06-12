@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para el CRUD de Clientes (Fase 4).
+    /// Capa de Datos para el CRUD de Clientes.
     /// Toda la comunicación con la base de datos se hace mediante PROCEDIMIENTOS ALMACENADOS
     /// usando ADO.NET (Microsoft.Data.SqlClient). PROHIBIDO Entity Framework.
     /// </summary>

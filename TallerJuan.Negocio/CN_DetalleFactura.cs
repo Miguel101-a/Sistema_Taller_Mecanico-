@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para el detalle de Facturas (Fase 6, N:M FACTURA ↔ PRODUCTO). Valida las
+    /// Capa de Negocio para el detalle de Facturas (N:M FACTURA ↔ PRODUCTO). Valida las
     /// líneas, exige que la factura esté en BORRADOR y el producto ACTIVO, traduce el producto
     /// duplicado (PK compuesta) y, tras cada cambio, recalcula los totales (IVA 13%). Registra la
     /// auditoría.

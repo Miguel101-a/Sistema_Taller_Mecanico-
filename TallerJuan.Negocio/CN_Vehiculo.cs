@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para Vehículos (Fase 4). Cada vehículo pertenece a un cliente.
+    /// Capa de Negocio para Vehículos. Cada vehículo pertenece a un cliente.
     /// Valida, traduce errores de BD y registra la auditoría. La capa Web SIEMPRE pasa por aquí.
     /// </summary>
     public class CN_Vehiculo

@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para los Movimientos de Inventario (Fase 4 -> N:M PRODUCTO ↔ ORDEN_TRABAJO).
+    /// Capa de Datos para los Movimientos de Inventario (-> N:M PRODUCTO ↔ ORDEN_TRABAJO).
     /// Acceso solo por PROCEDIMIENTOS ALMACENADOS (ADO.NET). PROHIBIDO Entity Framework.
     /// El SP de inserción actualiza el STOCK_ACTUAL del producto en la misma transacción.
     /// </summary>

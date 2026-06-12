@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para la gestión de Roles y Permisos (Fase 3).
+    /// Capa de Negocio para la gestión de Roles y Permisos.
     /// Envuelve a CD_Seguridad, aplica las reglas de negocio (protecciones del rol
     /// Administrador, validaciones, traducción de errores de BD) y registra la auditoría
     /// reutilizando CD_Acceso.RegistrarAuditoria. La capa Web SIEMPRE pasa por aquí.

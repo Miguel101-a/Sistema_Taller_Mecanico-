@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para Clientes (Fase 4). Envuelve a CD_Cliente, aplica validaciones,
+    /// Capa de Negocio para Clientes. Envuelve a CD_Cliente, aplica validaciones,
     /// traduce errores de BD a mensajes en español y registra la auditoría reutilizando
     /// CD_Acceso.RegistrarAuditoria. La capa Web SIEMPRE pasa por aquí.
     /// </summary>

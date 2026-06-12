@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para la cabecera de Cotizaciones (Fase 5). Acceso solo por PROCEDIMIENTOS
+    /// Capa de Datos para la cabecera de Cotizaciones. Acceso solo por PROCEDIMIENTOS
     /// ALMACENADOS (ADO.NET). PROHIBIDO Entity Framework. El detalle (N:M con PRODUCTO) lo
     /// maneja CD_DetalleCotizacion.
     /// </summary>

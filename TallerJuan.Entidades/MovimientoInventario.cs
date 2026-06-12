@@ -1,7 +1,7 @@
 namespace TallerJuan.Entidades
 {
     
-    /// Representa un movimiento de inventario (Fase 5). Es la tabla intermedia N:M entre
+    /// Representa un movimiento de inventario. Es la tabla intermedia N:M entre
     /// PRODUCTO y ORDEN_TRABAJO: toda SALIDA (repuesto usado) o INGRESO (devolución) se
     /// asocia siempre a una orden de trabajo y afecta el STOCK_ACTUAL del producto.
     

@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para los Movimientos de Inventario (Fase 5, N:M PRODUCTO ↔ ORDEN_TRABAJO).
+    /// Capa de Negocio para los Movimientos de Inventario (N:M PRODUCTO ↔ ORDEN_TRABAJO).
     /// Valida tipo/cantidad, exige producto ACTIVO y orden no ENTREGADA, deja que el SP mueva el
     /// stock en su transacción (traduce su SqlException al usuario) y registra la auditoría.
     /// </summary>

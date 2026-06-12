@@ -4,7 +4,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para los 5 reportes del ERS (Fase 6, RF-37 a RF-41). Valida el rango de
+    /// Capa de Negocio para los 5 reportes del ERS (RF-37 a RF-41). Valida el rango de
     /// fechas (inicio ≤ fin) y la agrupación (DIA/MES/ANIO) antes de delegar en la capa de Datos.
     /// Solo lectura: no registra auditoría.
     /// </summary>

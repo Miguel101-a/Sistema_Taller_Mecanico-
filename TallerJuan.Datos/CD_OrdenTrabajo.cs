@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para las Órdenes de Trabajo (Fase 4). Acceso solo por PROCEDIMIENTOS
+    /// Capa de Datos para las Órdenes de Trabajo. Acceso solo por PROCEDIMIENTOS
     /// ALMACENADOS (ADO.NET). PROHIBIDO Entity Framework.
     /// </summary>
     public class CD_OrdenTrabajo

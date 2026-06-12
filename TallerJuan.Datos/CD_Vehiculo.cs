@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para el CRUD de Vehículos (Fase 4). Cada vehículo pertenece a un cliente.
+    /// Capa de Datos para el CRUD de Vehículos. Cada vehículo pertenece a un cliente.
     /// Acceso solo por PROCEDIMIENTOS ALMACENADOS (ADO.NET). PROHIBIDO Entity Framework.
     /// </summary>
     public class CD_Vehiculo

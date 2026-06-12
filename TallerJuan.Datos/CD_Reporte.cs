@@ -5,7 +5,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Datos
 {
     /// <summary>
-    /// Capa de Datos para los 5 reportes del ERS (Fase 6, RF-37 a RF-41). Acceso solo por
+    /// Capa de Datos para los 5 reportes del ERS (RF-37 a RF-41). Acceso solo por
     /// PROCEDIMIENTOS ALMACENADOS (ADO.NET). PROHIBIDO Entity Framework. Solo lectura.
     /// </summary>
     public class CD_Reporte

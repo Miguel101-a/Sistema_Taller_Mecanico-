@@ -4,7 +4,7 @@ using TallerJuan.Entidades;
 namespace TallerJuan.Negocio
 {
     /// <summary>
-    /// Capa de Negocio para los Diagnósticos de una orden de trabajo (Fase 4).
+    /// Capa de Negocio para los Diagnósticos de una orden de trabajo.
     /// Valida la descripción y los valores opcionales, y registra la auditoría.
     /// </summary>
     public class CN_Diagnostico
