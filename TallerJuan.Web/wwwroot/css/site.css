@@ -511,6 +511,44 @@ tr.sgtmj-oculto {
 }
 
 /* ============================================================
+   FASE 7 - Dashboard de inicio
+   ============================================================ */
+
+/* Logo del saludo de bienvenida. */
+.sgtmj-inicio-logo {
+  height: 72px;
+  width: 72px;
+  object-fit: contain;
+  border-radius: .6rem;
+}
+
+/* Logo pequeño de las páginas de error y de estado HTTP (404, etc.). */
+.sgtmj-error-logo {
+  max-height: 90px;
+  width: auto;
+}
+
+/* Número grande de cada tarjeta resumen. */
+.sgtmj-dash-numero {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--sgtmj-texto);
+}
+
+/* Variante ámbar de la tarjeta de stock cuando hay productos bajo el mínimo. */
+.sgtmj-dash-alerta {
+  border-left: 4px solid var(--sgtmj-acento) !important;
+}
+.sgtmj-dash-alerta:hover {
+  border-color: var(--sgtmj-acento) !important;
+}
+.sgtmj-reporte-icono.sgtmj-dash-icono-alerta {
+  background-color: #FEF3C7;
+  color: #92400E;
+}
+
+/* ============================================================
    IMPRESIÓN DE REPORTES (@media print)
    Oculta el sidebar, la topbar, el pie y los controles; muestra el título de impresión.
    ============================================================ */
