@@ -15,7 +15,8 @@ builder.Services.AddControllersWithViews(opciones =>
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(opciones =>
 {
-    opciones.IdleTimeout = TimeSpan.FromMinutes(30);
+    // RNF-04: la sesión se cierra automáticamente tras 15 minutos de inactividad.
+    opciones.IdleTimeout = TimeSpan.FromMinutes(15);
     opciones.Cookie.HttpOnly = true;
     opciones.Cookie.IsEssential = true;
 });
@@ -28,13 +29,18 @@ ConexionBD.Configurar(cadenaConexion);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configuración del flujo de peticiones HTTP.
 if (!app.Environment.IsDevelopment())
 {
+    // En producción, cualquier excepción no controlada se desvía a la página de error amigable.
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // El valor por defecto de HSTS es 30 días; ajústelo para escenarios de producción: https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+// Respuestas amigables para códigos de estado (p. ej. 404): se re-ejecuta la acción
+// Home/EstadoHttp pasándole el código, conservando la estética del sistema.
+app.UseStatusCodePagesWithReExecute("/Home/EstadoHttp", "?codigo={0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

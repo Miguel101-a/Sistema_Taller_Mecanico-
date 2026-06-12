@@ -1,0 +1,25 @@
+@{
+    int codigo = ViewData["Codigo"] is int c ? c : 0;
+    bool esNoEncontrado = codigo == 404;
+    ViewData["Title"] = esNoEncontrado ? "Página no encontrada" : $"Error {codigo}";
+}
+
+<div class="sgtmj-login-fondo">
+    <div class="sgtmj-login-card text-center">
+        <img src="~/img/logo.png" alt="Logo Taller Mecánico JUAN" class="sgtmj-error-logo mb-3" />
+        <div class="display-4 fw-bold" style="color: var(--sgtmj-primario);">@codigo</div>
+        @if (esNoEncontrado)
+        {
+            <h1 class="h4 fw-semibold mt-2 mb-2">Página no encontrada</h1>
+            <p class="text-muted mb-4">La página que busca no existe o fue movida.</p>
+        }
+        else
+        {
+            <h1 class="h4 fw-semibold mt-2 mb-2">Ocurrió un problema</h1>
+            <p class="text-muted mb-4">No se pudo completar la solicitud. Intente nuevamente o contacte al administrador.</p>
+        }
+        <a asp-controller="Inicio" asp-action="Index" class="btn btn-sgtmj-primario">
+            <i class="bi bi-house-door me-1"></i>Volver al inicio
+        </a>
+    </div>
+</div>

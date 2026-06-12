@@ -32,4 +32,14 @@ public class HomeController : Controller
     {
         return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
     }
+
+    // Página amigable para códigos de estado HTTP (404, etc.). El código llega por querystring
+    // desde UseStatusCodePagesWithReExecute; se conserva el código de estado en la respuesta.
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult EstadoHttp(int codigo)
+    {
+        Response.StatusCode = codigo;
+        ViewData["Codigo"] = codigo;
+        return View();
+    }
 }
