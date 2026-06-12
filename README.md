@@ -8,14 +8,6 @@ cotizaciones, facturación y reportes estadísticos, todo bajo un esquema de seg
 permisos. Está construido con **ASP.NET Core MVC (.NET 8)** sobre una arquitectura de tres capas más
 entidades, usando **ADO.NET con procedimientos almacenados** sobre SQL Server (sin Entity Framework).
 
-## Capturas
-
-> Las imágenes se encuentran en `docs/capturas/`.
-
-![Inicio de sesión](docs/capturas/login.png)
-![Dashboard de inicio](docs/capturas/dashboard.png)
-![Detalle de orden de trabajo](docs/capturas/orden-detalle.png)
-![Reporte de ingresos](docs/capturas/reporte.png)
 
 ## Arquitectura
 
